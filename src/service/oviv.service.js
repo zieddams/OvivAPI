@@ -8,6 +8,9 @@ const STATUES = require("../config/config.application").STATUES_CODE;
 
 module.exports = router;
 
+router.get("/",(res,req)=>{
+    res.send("<h1>Welcom To Oviv-API services</h1>")
+})
 router.post("/resetPassword", (req, res) => {
     email = req.body.email;
     User.findOne({
