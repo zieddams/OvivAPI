@@ -8,8 +8,12 @@ const STATUES = require("../config/config.application").STATUES_CODE;
 
 module.exports = router;
 
-router.get("/",(req,res)=>{
-    res.send("<div style='text-align: center;'><h1 style='color:#8A2BE2;'>Welcom To Oviv-API services</h1></div>")
+router.get("/", (req, res) => {
+    let HTMLdisplay = `
+    <div style="height: 100%;display: flex;align-items: center;justify-content: center;">
+        <h1 style="color: #e68b2fcc;font-size: xxx-large;font-family: system-ui;">Welcom To Oviv-API services</h1>
+      </div>`
+    res.send(HTMLdisplay);
 })
 router.post("/resetPassword", (req, res) => {
     email = req.body.email;
