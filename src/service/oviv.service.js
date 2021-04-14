@@ -8,8 +8,8 @@ const STATUES = require("../config/config.application").STATUES_CODE;
 
 module.exports = router;
 
-router.get("/",(res,req)=>{
-    res.send("<h1>Welcom To Oviv-API services</h1>")
+router.get("/",(req,res)=>{
+    res.send("<div style='text-align: center;'><h1 style='color:#8A2BE2;'>Welcom To Oviv-API services</h1></div>")
 })
 router.post("/resetPassword", (req, res) => {
     email = req.body.email;
