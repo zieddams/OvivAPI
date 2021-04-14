@@ -1,0 +1,48 @@
+{
+  "name": "oviv",
+  "version": "1.0.0",
+  "description": "Oviv",
+  "main": "main.js",
+  "scripts": {
+    "test": "test",
+    "start": "nodemon main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "test"
+  },
+  "keywords": [
+    "oviv"
+  ],
+  "author": "oviv chat",
+  "license": "ISC",
+  "dependencies": {
+    "app-module-path": "^2.2.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "file-system": "^2.2.2",
+    "generate-password": "^1.5.1",
+    "geoip-lite": "^1.4.2",
+    "geolocation": "^0.2.0",
+    "imagemin": "^7.0.1",
+    "imagemin-mozjpeg": "^9.0.0",
+    "is-jpg": "^2.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "jugglingdb": "^2.0.1",
+    "jugglingdb-mongodb": "latest",
+    "mongoose": "^5.12.0",
+    "multer": "^1.4.2",
+    "nodemailer": "^6.4.17",
+    "nodemon": "^2.0.7",
+    "passport": "^0.4.1",
+    "passport-facebook": "^3.0.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-jwt": "^4.0.0",
+    "request": "^2.88.2",
+    "sharp": "^0.28.1",
+    "socket.io": "^3.1.1",
+    "telesignsdk": "^2.2.1",
+    "validator": "^13.5.2"
+  }
+}
