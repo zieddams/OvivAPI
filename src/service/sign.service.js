@@ -64,12 +64,12 @@ router.post("/in", (req, res) => {
                     const payload = {
                         id: user._id
                     };
-                    jwt.sign(payload, keys.SECRET_OR_KEY, {}, (err, token) => {
+                    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
                         if (err) {
                             res.json({
                                 code: STATUES.NOT_VALID,
                                 msg: err,
-                            });
+                            });   
                         }
                         if (user.connection.length !== keys.NBR_CONNECTION_LIMIT) {
                             user.connection.push(req.body.connection);
@@ -127,18 +127,19 @@ router.get('/auth/google/callback', passport.authenticate('google', {
     const payload = {
         id: req.user.id
     };
-    jwt.sign(payload, keys.SECRET_OR_KEY, {}, (err, token) => {
+    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
         if (err) {
             res.json({
                 code: STATUES.NOT_VALID,
                 msg: err,
             });
         }
-        res.json({
-            code: STATUES.OK,
-            success: true,
-            token: "Bearer " + token,
-        });
+        else{
+            res.send({
+                success: true,
+                token: "Bearer " + token,
+            });
+            }
     });
 })
 
@@ -152,7 +153,7 @@ router.get("/auth/facebook/callback", passport.authenticate('facebook',{
     const payload = {
         id: req.user.id
     };
-    jwt.sign(payload, keys.SECRET_OR_KEY, {}, (err, token) => {
+    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
         if (err) {
             res.json({
                 code: STATUES.NOT_VALID,

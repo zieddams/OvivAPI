@@ -6,28 +6,27 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const User = require("./../schema/user.schema")
 const bcrypt = require("bcryptjs");
-const keys = require("./config.application")
 const JWT_options = {};
 const GOOGLE_OAUTH_options = {};
 const FACEBOOK_options = {};
 
 
 JWT_options.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-JWT_options.secretOrKey = keys.SECRET_OR_KEY
+JWT_options.secretOrKey = process.env.SECRET_OR_KEY
 
-GOOGLE_OAUTH_options.clientID = keys.GOOGLE_CLIENT_ID
-GOOGLE_OAUTH_options.clientSecret = keys.GOOGLE_CLIENT_SECRET
+GOOGLE_OAUTH_options.clientID = process.env.GOOGLE_CLIENT_ID
+GOOGLE_OAUTH_options.clientSecret = process.env.GOOGLE_CLIENT_SECRET
 GOOGLE_OAUTH_options.callbackURL = "/sign/auth/google/callback"
 
-FACEBOOK_options.clientID = keys.FACEBOOK_CLIENT_ID
-FACEBOOK_options.clientSecret = keys.FACEBOOK_CLIENT_SECRET
+FACEBOOK_options.clientID = process.env.FACEBOOK_CLIENT_ID
+FACEBOOK_options.clientSecret = process.env.FACEBOOK_CLIENT_SECRET
 FACEBOOK_options.callbackURL = "/sign/auth/facebook/callback"
 FACEBOOK_options.profileFields = ["id", "birthday", "email", "first_name",/*, "user_gender",*/ "last_name","picture.width(200).height(200)"];
 
 module.exports = (passport) => {
 
     passport.use(
-        new JwtStrategy(JWT_options, (jwt_payload, done) => {
+        new JwtStrategy(JWT_options,async (jwt_payload, done) => {
 
             User.findById(jwt_payload.id).then((user) => {
                 if (user) {
@@ -48,6 +47,7 @@ module.exports = (passport) => {
         new GoogleStrategy(GOOGLE_OAUTH_options,
             async (req,accessToken, refreshToken, profile, done) => {
                 try {
+                    //console.log(GOOGLE_OAUTH_options.clientID)
                     let user = await User.findOne({
                         googleId: profile.id
                     })

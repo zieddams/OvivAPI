@@ -1,13 +1,13 @@
 application =module.exports={}
 const Express = require("express");
-const PORT = process.env.PORT || require("../config/config.application").SERVER_PORT;
+const PORT = process.env.PORT
 const app = Express();
 const bodyParser = require('body-parser');
 const passport = require("passport");
 
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
-
+const dotenv = require('dotenv').config();
 const cors =require("cors");
 
 // import main routes
@@ -46,8 +46,8 @@ app.use(bodyParser.urlencoded({
 
 
 application.exeServer=()=>{
-    console.log(`Server is working on ${PORT}` )
-        http.listen(PORT);
+    console.log(`Server is working on ${process.env.PORT}` )
+        http.listen(process.env.PORT);
     }
 
 /*io.on('connection', (socket)=> {
