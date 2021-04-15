@@ -8,7 +8,7 @@ const passport = require("passport");
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const dotenv = require('dotenv').config();
-//const compression = require("compression");
+const compression = require("compression");
 const cors =require("cors");
 
 // import main routes
@@ -29,7 +29,7 @@ let corsOptions = {
 }
 
 application.initServer=()=>{
-   //app.use(compression({level:6}));
+   app.use(compression({level:6}));
 app.use(bodyParser.urlencoded({
     extended: false
  }));
