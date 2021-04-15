@@ -9,6 +9,7 @@ const userSchema=mongoose.Schema({
         username:  { type: String, unique:true, required: true, trim: true, index: true, minLength:6 },
         lastName:  { type: String, trim: true, minLength:2,maxLength:20, validate :{validator: schemaValidator.OnlyCharacters, msg: 'last name can not accept numbers '}},
         firstName: { type: String, trim: true, minLength:2,maxLength:20, validate :{validator: schemaValidator.OnlyCharacters, msg: 'first name can not accept numbers '}},
+        update: {type: Date}
     },
     
     email:{
@@ -22,7 +23,8 @@ const userSchema=mongoose.Schema({
     },
     birth: {
       birthday:  { type: Date/*, required: true */},
-      age: {type: Number , }
+      age: {type: Number },
+      update: {type: Date}
     },
     gender:{ type: String/*, required: true */},
     phone:{
@@ -46,19 +48,24 @@ const userSchema=mongoose.Schema({
         country_code: {type :String},
         town: {type :String},
         village :{type :String},
+        update: {type: Date}
     },
     gallery:{
         images:[
             {   isProfilePic:{type:Boolean, default:false},
-                isCoverPic:{type:Boolean, default:false},
                 text:{type: String,trim: true},
                 data:{ type: Buffer},
-                likes:[{type:mongoose.Schema.Types.ObjectId,ref:"user"}],
+                likes:[{
+                    user:{type:mongoose.Schema.Types.ObjectId,ref:"user"},
+                    like_date:{type: Date}
+                }],
                 comments:[{
                         commentor_id: {type:mongoose.Schema.Types.ObjectId,ref:"user"},
                         comment_body: {type: String},
-                        comment_likes:[{type:mongoose.Schema.Types.ObjectId,ref:"user"}]
-                }]
+                        comment_likes:[{type:mongoose.Schema.Types.ObjectId,ref:"user"}],
+                        comment_date:{type: Date}
+                }],
+                update: {type: Date}
             }
         ]
 
@@ -85,7 +92,8 @@ const userSchema=mongoose.Schema({
         {
             notif_type: {type:String},
             target_user_id:{type:mongoose.Schema.Types.ObjectId,ref:"user"},
-            is_seen:{type:Boolean, default:false}
+            is_seen:{type:Boolean, default:false},
+            update: {type: Date}
         }
     ],
     isOnline:Boolean,

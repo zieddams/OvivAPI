@@ -37,7 +37,7 @@ router.post("/update/password", (req, res) => {
         _id: req.user.id
     }).then((user) => {
         if (bcrypt.compareSync(req.body.oldPassword, user.password.value)) {
-            userFunctions.updatePassword(user, req.body.newPassword, req.body.timeUpdate);
+            userFunctions.updatePassword(user, req.body.newPassword, req.body.action_date);
             res.json({
                 code: STATUES.OK,
                 msg: "Update succefull !!"
@@ -296,10 +296,12 @@ router.post("/updateProfilePic", upload.single("profilePic"), async (req, res) =
             index = user.gallery.images.findIndex(img => img.isProfilePic)
             if (index !== -1) {
                 user.gallery.images[index].data = minibuffer;
+                user.gallery.images[index].update = req.body.action_date;
             } else {
                 let pic = {
                     isProfilePic: true,
                     data: minibuffer,
+                    update:req.body.action_date
                 }
                 user.gallery.images.push(pic);
             }
@@ -311,34 +313,6 @@ router.post("/updateProfilePic", upload.single("profilePic"), async (req, res) =
     }
 
 });
-router.post("/updateCoverPic", upload.single("coverPic"), async (req, res) => {
-    imgData = fs.readFileSync(req.file.path)
-    stats = fs.statSync(req.file.path)
-    imgSizeInBytes = stats.size;
-    imgSizeInMegabytes = imgSizeInBytes / (1024 * 1024);
-
-    if (imgSizeInMegabytes > IMAGE_MAX_SIZE) {
-        res.send("image too big")
-    } else {
-        User.findById(req.user.id).then(async user => {
-            minibuffer = await userFunctions.compressImg(imgData)
-            index = user.gallery.images.findIndex(img => img.isCoverPic)
-            if (index !== -1) {
-                user.gallery.images[index].data = minibuffer;
-            } else {
-                let coverPic = {
-                    isCoverPic: true,
-                    data: minibuffer,
-                }
-                user.gallery.images.push(coverPic);
-            }
-
-            user.save().then(() => {
-                res.send("Cover Picture Updated")
-            }).catch(err => res.send(err))
-        }).catch(err => res.send(err))
-    }
-})
 
 router.get("/getprofilepic", (req, res) => {
     User.findById(req.user.id).then((findUser) => {
@@ -411,6 +385,7 @@ router.post("/uploadPic", upload.single("newPic"), async (req, res) => {
                 newImgData = {
                     text: imgDesc,
                     data: minibuffer,
+                    update:req.body.action_date
                 }
                 user.gallery.images.push(newImgData);
                 user.save().then(() => {
@@ -431,7 +406,8 @@ router.post("/followRequest", (req, res) => {
     User.findById(req.body.userRequested).then(user => {
         newNotification = {
             notif_type: "newfollow",
-            target_user_id: req.user.id
+            target_user_id: req.user.id,
+            update:req.body.action_date
         }
         if (user.isFollowPublic) {
             user.notification_list.push(newNotification)
@@ -465,14 +441,16 @@ router.post("/acceptFollow", (req, res) => {
             user.notification_list.splice(indexNotification, 1)
         }
         let newFollowObj = {
-            user_id: req.body.newFollower
+            user_id: req.body.newFollower,
+            follow_date:req.body.action_date
         }
         user.followers.push(newFollowObj)
         user.save().then(() => {
             User.findById(req.body.newFollower).then(follower => {
                 let newNotification = {
                     notif_type: "followAccepted",
-                    target_user_id: req.user.id
+                    target_user_id: req.user.id,
+                    update:req.body.action_date
                 }
                 follower.notification_list.push(newNotification)
                 follower.save().then(() => {
@@ -567,19 +545,23 @@ router.post("/likePic", (req, res) => {
     User.findById(userId).then(user => {
         let imageObj = user.gallery.images.find(image => image._id.equals(picId));
         let imageIndex = user.gallery.images.findIndex(image => image._id.equals(picId));
-        let likeIndex = imageObj.likes.findIndex(like => like.equals(req.user.id));
-
+        let likeIndex = imageObj.likes.findIndex(like => like.user.equals(req.user.id));
         if (likeIndex != -1) {
             user.gallery.images[imageIndex].likes.splice(likeIndex, 1)
             user.save().then(() => {
                 res.send("Your Unlike has been commited");
             }).catch(err => res.send(err))
         } else {
-            user.gallery.images[imageIndex].likes.push(req.user.id)
+            let newLike = {
+                user:req.user.id,
+                like_date:req.body.action_date
+            }
+            user.gallery.images[imageIndex].likes.push(newLike)
             if (!req.user.id.equals(userId)) {
                 let newNotification = {
                     notif_type: "picReaction",
-                    target_user_id: req.user.id
+                    target_user_id: req.user.id,
+                    update:req.body.action_date
                 }
                 user.notification_list.push(newNotification)
             }
@@ -600,12 +582,14 @@ router.post("/commentPic", (req, res) => {
         User.findById(userId).then(user => {
             let newComment = {
                 commentor_id: req.user.id,
-                comment_body: commentBody.trim()
+                comment_body: commentBody.trim(),
+                comment_date: req.body.action_date
             }
             if (!req.user.id.equals(userId)) {
                 let newNotification = {
                     notif_type: "picComment",
-                    target_user_id: req.user.id
+                    target_user_id: req.user.id,
+                    update:req.body.action_date
                 }
                 user.notification_list.push(newNotification)
             }
@@ -627,7 +611,7 @@ router.post("/likeComment", (req, res) => {
     User.findById(userId).then(user => {
         let picIndex = user.gallery.images.findIndex(img => img._id.equals(picId));
         let commentIndex = user.gallery.images[picIndex].comments.findIndex(comment => comment._id.equals(commentId));
-        let likeIndex = user.gallery.images[picIndex].comments[commentIndex].comment_likes.findIndex(like => like.equals(req.user.id))
+        let likeIndex = user.gallery.images[picIndex].comments[commentIndex].comment_likes.findIndex(like => like.user.equals(req.user.id))
         if (likeIndex != -1) {
             user.gallery.images[picIndex].comments[commentIndex].comment_likes.splice(likeIndex, 1)
             user.save().then(() => {
@@ -641,7 +625,8 @@ router.post("/likeComment", (req, res) => {
                     User.findById(commentorId).then(commentor => {
                         let newNotification = {
                             notif_type: "reactComment",
-                            target_user_id: req.user.id
+                            target_user_id: req.user.id,
+                            update:req.body.action_date
                         }
                         commentor.notification_list.push(newNotification)
                         commentor.save().then(() => {
