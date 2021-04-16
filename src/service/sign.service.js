@@ -12,9 +12,9 @@ const rateLimit = require("express-rate-limit");
 
 module.exports = router;
 
-const limiter = rateLimit({
+const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 min
-    max: 6 // limit each IP to 100 requests per windowMs 
+    max: 6 // limit each IP to 6 login requests per windowMs 
 })
 
 router.post("/up", (req, res) => {
@@ -54,7 +54,7 @@ router.post("/up", (req, res) => {
 
 });
 
-router.post("/in",limiter, (req, res) => {
+router.post("/in",loginLimiter, (req, res) => {
     const authenticator = req.body.authenticator;
     const password = req.body.password;
     User.findOne().or([{
