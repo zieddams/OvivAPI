@@ -101,7 +101,7 @@ module.exports.updateInterests = (situation,result,bodyInterests,req,res) =>{
 module.exports.setGalleryList = (userImagesList) => {
     picsArray = [];
     userImagesList.forEach(element => {
-        if(!element.isProfilePic || !element.isCoverPic){
+        if(!element.isProfilePic){
             base64code = Buffer.from(element.data).toString('base64');
             imgObject = {
                 id:element._id,
