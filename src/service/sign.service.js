@@ -8,8 +8,14 @@ const passport = require("passport");
 const router = express.Router();
 const STATUES = require("../config/config.application").STATUES_CODE;
 const userFunctions = require("../functions/user.functions");
+const rateLimit = require("express-rate-limit");
 
 module.exports = router;
+
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 min
+    max: 6 // limit each IP to 100 requests per windowMs 
+})
 
 router.post("/up", (req, res) => {
 
@@ -48,7 +54,7 @@ router.post("/up", (req, res) => {
 
 });
 
-router.post("/in", (req, res) => {
+router.post("/in",limiter, (req, res) => {
     const authenticator = req.body.authenticator;
     const password = req.body.password;
     User.findOne().or([{
@@ -101,7 +107,6 @@ router.post("/in", (req, res) => {
                             oviv_currency:user.oviv_currency,
                             description: user.description,
                             isVerified:user.isVerified,
-
                         }
                         img = user.gallery.images.find(img => img.isProfilePic)
 
@@ -116,7 +121,7 @@ router.post("/in", (req, res) => {
                             user_payload.nb_new_notifications = notficationsNotSeen.length
                         }
                         let discss = await  Discussion.find({partners: user._id }).exec();
-                        msgnotSeenCount = 0
+                       let msgnotSeenCount = 0
                         discss.forEach(dis => {
                             msgs = dis.message.filter(msg =>{ (msg.sender != user._id) && (!msg.is_seen)})
                             msgnotSeenCount+=msgs.length;
