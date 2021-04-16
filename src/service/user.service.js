@@ -14,6 +14,7 @@ const userFunctions = require("../functions/user.functions");
 const emailSubjects = require("../mailer/emails.subject");
 const multer = require('multer');
 const fs = require('file-system');
+const nodemon = require("nodemon");
 const upload = multer({
     dest: './uploads/'
 })
@@ -381,10 +382,14 @@ router.post("/uploadPic", upload.single("newPic"), async (req, res) => {
     } else {
         User.findById(req.user.id).then(async user => {
             if (user.gallery.images.length < 5) {
+               console.log("size before compress => "+imgData.toString().length)
                 minibuffer = await userFunctions.compressImg(imgData)
+                /*console.log("size after compress => "+minibuffer.toString().length)
+               x_minibuffer = await userFunctions.compressImg(minibuffer)
+               console.log("size + after compress => "+x_minibuffer.toString().length)*/
                 newImgData = {
                     text: imgDesc,
-                    data: minibuffer,
+                    data: x_minibuffer,
                     update:req.body.action_date
                 }
                 user.gallery.images.push(newImgData);

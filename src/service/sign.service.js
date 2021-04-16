@@ -1,4 +1,5 @@
 const User = require("../schema/user.schema");
+const Discussion = require("../schema/discussion.schema");
 const jwt = require("jsonwebtoken");
 const keys = require("../config/config.application");
 const bcrypt = require("bcryptjs");
@@ -61,29 +62,71 @@ router.post("/in", (req, res) => {
         if (user) {
             bcrypt.compare(password, user.password.value).then((isMatch) => {
                 if (isMatch) {
+                    /**
+                         * user_payload : 
+                         * id,
+                         * name,
+                         * photo de profile
+                         * nb followers
+                         * oviv_currency
+                         * description
+                         * isVerified
+                         * nb notification_list [is_seen == false]
+                         * nb mseesages [ is_seen == false]
+                         */
                     const payload = {
                         id: user._id
                     };
-                    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
+                    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async(err, token) => {
                         if (err) {
                             res.json({
                                 code: STATUES.NOT_VALID,
                                 msg: err,
                             });   
                         }
-                        if (user.connection.length !== keys.NBR_CONNECTION_LIMIT) {
+                        /*if (user.connection.length !== keys.NBR_CONNECTION_LIMIT) {
                             user.connection.push(req.body.connection);
                             user.save();
                         } else {
                             user.connection.shift();
                             user.connection.push(req.body.connection);
                             user.save();
-                        }
+                        }*/
+                        
+                        
+                        let user_payload = {
+                            id:user._id,
+                            name:user.name,
+                            nbFollowers: user.followers.length,
+                            oviv_currency:user.oviv_currency,
+                            description: user.description,
+                            isVerified:user.isVerified,
 
+                        }
+                        img = user.gallery.images.find(img => img.isProfilePic)
+
+                        notficationsNotSeen = user.notification_list.filter(notification => !notification.is_seen)
+                        if(img){
+
+                            const base64data = Buffer.from(img.data).toString('base64');
+                            user_payload.profilePic = base64data
+                        }
+                        if(notficationsNotSeen){
+
+                            user_payload.nb_new_notifications = notficationsNotSeen.length
+                        }
+                        let discss = await  Discussion.find({partners: user._id }).exec();
+                        msgnotSeenCount = 0
+                        discss.forEach(dis => {
+                            msgs = dis.message.filter(msg =>{ (msg.sender != user._id) && (!msg.is_seen)})
+                            msgnotSeenCount+=msgs.length;
+                        });
+                        user_payload.nb_new_mseesages = msgnotSeenCount
                         res.json({
                             code: STATUES.OK,
                             success: true,
                             token: "Bearer " + token,
+                            user_payload
                         });
                     });
 

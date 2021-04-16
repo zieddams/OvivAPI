@@ -11,6 +11,7 @@ const discussionSchema=mongoose.Schema({
         {
             sender:mongoose.Schema.Types.ObjectId,
             text:{type:String,trim:true,index:true},
+            is_seen:{type:Boolean, default:false},
             dateTime:{type:Date, default:Date.now()}
         }
     ],
