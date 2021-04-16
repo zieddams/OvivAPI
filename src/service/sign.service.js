@@ -1,7 +1,6 @@
 const User = require("../schema/user.schema");
 const Discussion = require("../schema/discussion.schema");
 const jwt = require("jsonwebtoken");
-const keys = require("../config/config.application");
 const bcrypt = require("bcryptjs");
 const express = require("express");
 const passport = require("passport");
@@ -14,7 +13,7 @@ module.exports = router;
 
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 min
-    max: 6 // limit each IP to 6 login requests per windowMs 
+    max: 6 // limit each IP to 6 login requests/ 15 min 
 })
 
 router.post("/up", (req, res) => {
@@ -36,11 +35,15 @@ router.post("/up", (req, res) => {
         oviv_currency: 100
     });
     newUser.save().then((user) => {
-        userFunctions.SendVerifyEmail(req.body.email, req.body.name, res, {
-            code: STATUES.CREATED,
-            msg: "User Created",
-        }, user._id, secretCode);
-        res.json({ code: STATUES.CREATED, msg: 'done'})
+        /**
+         * email
+         * username
+         * secretCode
+         */
+        userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
+
+        res.json({ code: STATUES.CREATED, msg: 'user created and email veryfication sended'})
+
     }).catch((err) => {
         res.json({
             code: STATUES.NOT_VALID,

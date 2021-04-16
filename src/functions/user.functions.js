@@ -2,21 +2,26 @@ const User = require("../schema/user.schema");
 const Personal = require("../schema/personal.schema");
 const bcrypt = require("bcryptjs");
 const generator = require('generate-password');
-const emailSubjects = require("../mailer/emails.subject");
-const ovivEmail = require("../config/config.application").OVIV_EMAIL;
-const smtpServ = require("./../mailer/SMTP.mailer");
-const body = require("../mailer/emails.body");
-const STATUES = require("../config/config.application").STATUES_CODE;
+const emailSubject = require("../mailer/emailsSubject");
+const emailBody = require("../mailer/emailsBody");
 const validator = require('validator');
 const isJpg = require('is-jpg');
 const sharp = require('sharp');
 const imagemin = require('imagemin');
 const mozjpeg = require('imagemin-mozjpeg');
-
+const sendEmail = require("../mailer/gmail")
+const convertToJpg = async (input) =>{
+    if(isJpg(input)){
+        return input
+    }
+    return sharp(input).jpeg().toBuffer();
+}
 
 
 module.exports.isValidEmail = (email) => validator.isEmail(email);
+
 module.exports.isValidPhone = (phone) => validator.isMobilePhone(phone);
+
 module.exports.updatePassword = (user, newPassword, timeUpdate) => {
     newPassword = bcrypt.hashSync(newPassword, 10);
     User.updateOne({
@@ -36,7 +41,6 @@ module.exports.getNewPassword = () => {
         numbers: true
     });
 }
-
 module.exports.createSecretCode = () => {
     return generator.generate({
         length: 25,
@@ -44,31 +48,19 @@ module.exports.createSecretCode = () => {
         numbers: true
     });
 }
+module.exports.SendVerifyEmail = (id,email,username,secretCode) => {
 
-module.exports.SendVerifyEmail = (email, name, resRequest, signUpResult, id, secretCode) => {
-    emailObject = {
-        from: ovivEmail,
-        to: email,
-        subject: emailSubjects.VERIFY_ACCOUNT,
-        text: body.verifAccountEmailBody(name, id, secretCode)
-    }
-    smtpServ.sendMail(emailObject, (err, info) => {
-        if (err) {
-            signUpResult.emailVerif = {
-                code: STATUES.NOT_VALID,
-                msg: err
-            }
-            resRequest.send(signUpResult);
-        } else {
-            signUpResult.emailVerif = {
-                code: STATUES.OK,
-                msg: info
-            }
-            resRequest.send(signUpResult);
-        }
-    });
+    const {html , text} = emailBody.verifAccountEmailBody(id,username,secretCode)
+    sendEmail.sendGmail(email,emailSubject.VERIFY_ACCOUNT,text,html).then(()=>{
+        //console.log("email is send", result)
+    }).catch(error => console.log(error.message));
 }
-
+module.exports.SendNewPasswordEmail = (email,newPassword)=>{
+    const {html , text} = emailBody.resetPasswordEmailBody(newPassword)
+    sendEmail.sendGmail(email,emailSubject.RESET_PASSWORD,text,html).then(()=>{
+        //console.log("email is send", result)
+    }).catch(error => console.log(error.message));
+}
 module.exports.updateInterests = (situation,result,bodyInterests,req,res) =>{
     if(situation){
         User.findOneAndUpdate({_id:req.user.id},{$push:{interests: {$each: result}}}).then(user=>{
@@ -128,7 +120,6 @@ module.exports.isValidCommentBody = (text) =>{
    text = text.trim();
    return !(regExp.test(text) || validator.isEmpty(text));
 }
-
 module.exports.listUsersCards = (users) => {
     let cardUsers = [];
     users.forEach(user => {
@@ -174,13 +165,6 @@ module.exports.CreatSearchQuery = async(filter) => {
         cardUsers.push(userCardData)
     }) 
     return cardUsers;
-}
-
-const convertToJpg = async (input) =>{
-    if(isJpg(input)){
-        return input
-    }
-    return sharp(input).jpeg().toBuffer();
 }
 module.exports.compressImg = async (buffer)=>{
     const miniBuffer = await imagemin.buffer(buffer,{

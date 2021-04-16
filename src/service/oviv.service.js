@@ -1,10 +1,15 @@
-const bcrypt = require("bcryptjs");
 const User = require("../schema/user.schema");
 const express = require("express");
 const router = express.Router();
 const userFunctions = require("../functions/user.functions");
-const emailSubjects = require("../mailer/emails.subject");
 const STATUES = require("../config/config.application").STATUES_CODE;
+const rateLimit = require("express-rate-limit");
+
+const resetPasswordLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 h
+    max: 1, // limit each IP to 1 reset password request/ 1h,
+    message:"you can't use this for a while because your new passwred was already send to your email, go check"
+})
 
 module.exports = router;
 
@@ -15,7 +20,7 @@ router.get("/", (req, res) => {
       </div>`
     res.send(HTMLdisplay);
 })
-router.post("/resetPassword", (req, res) => {
+router.post("/resetPassword",resetPasswordLimiter, (req, res) => {
     email = req.body.email;
     User.findOne({
         "email.value": {
@@ -29,32 +34,18 @@ router.post("/resetPassword", (req, res) => {
             });
         } else {
             newPassword = userFunctions.getNewPassword();
-            userFunctions.updatePassword(user, newPassword, req.body.timeUpdate);
-            emailObject = {
-                from: config.OVIV_EMAIL,
-                to: email,
-                subject: emailSubjects.RESET_PASSWORD,
-                text: msg.resetPasswordEmailBody(newPassword)
-            }
-            smtpServ.sendMail(emailObject, (err, info) => {
-                if (err) {
-                    res.json({
-                        code: STATUES.NOT_VALID,
-                        msg: err
-                    });
-                } else res.json({
-                    code: STATUES.OK,
-                    msg: 'Email sended'
-                });
-            });
+            userFunctions.updatePassword(user, newPassword, req.body.action_date);
+            userFunctions.SendNewPasswordEmail(email,newPassword)
+            res.json({
+                code:STATUES.OK,
+                msg:"a new password was sended to your email"
+            })
         }
     });
 });
 
 router.post("/verify/:id/:secretCode", (req, res) => {
-    User.findOne({
-        _id: req.params.id
-    }).then((user) => {
+    User.findById(req.params.id).then((user) => {
         if (user.secretCode === req.params.secretCode) {
             User.updateOne({
                 _id: req.params.id

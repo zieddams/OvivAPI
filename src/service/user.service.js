@@ -2,19 +2,13 @@ const bcrypt = require("bcryptjs");
 const User = require("../schema/user.schema");
 const Personal = require("../schema/personal.schema");
 const Interest = require("../schema/interests.schema");
-const passport = require("passport");
 const express = require("express");
 const router = express.Router();
-const config = require("../config/config.application")
 const STATUES = require("../config/config.application").STATUES_CODE;
 const IMAGE_MAX_SIZE = require("../config/config.application").IMAGE_MAX_SIZE;
-const smtpServ = require("../mailer/SMTP.mailer");
-const msg = require("../mailer/emails.body");
 const userFunctions = require("../functions/user.functions");
-const emailSubjects = require("../mailer/emails.subject");
 const multer = require('multer');
 const fs = require('file-system');
-const nodemon = require("nodemon");
 const upload = multer({
     dest: './uploads/'
 })
@@ -32,8 +26,7 @@ router.get("/", (req, res) => {
         res.send(user)
     })
 })
-
-router.post("/update/password", (req, res) => {
+router.post("/updatePassword", (req, res) => {
     User.findOne({
         _id: req.user.id
     }).then((user) => {
@@ -51,12 +44,13 @@ router.post("/update/password", (req, res) => {
         }
     });
 });
-
 router.post("/validate", (req, res) => {
-    User.findOne({
-        _id: req.user.id
-    }).then((user) => {
-        userFunctions.SendVerifyEmail(email, user.name, res, {}, user._id, user.secretCode);
+    User.findById(req.user.id).then((user) => {
+        userFunctions.SendVerifyEmail(user._id,user.email.value,user.name.username,user.secretCode);
+        res.json({
+            code:STATUES.OK,
+            msg:"email sended"
+        });
     }).catch(err => {
         res.json({
             code: STATUES.NOT_FOUND,
@@ -653,8 +647,7 @@ router.post("/likeComment", (req, res) => {
 router.get("/hello", (req, res) => {
 
 
-    /* r = decrypt(req.body.hash)
-     res.send(r)*/
+  
 
 
 

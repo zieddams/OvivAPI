@@ -2,6 +2,13 @@
 //boujemaa.wahid.extras@gmail.com
 //0000aaaaA@
 
+
+//oviv gmail Account
+/**
+ * email => ovivchat@gmail.com
+ * password => ovivprjx2021
+ */
+
 module.exports = 
     {
         NBR_CONNECTION_LIMIT:20,
@@ -12,7 +19,6 @@ module.exports =
             NOT_VALID:500,
             NOT_FOUND:404,
         },
-        OVIV_EMAIL:"Ovivservice@oviv.com",
         ACTIONS:{
             ADD:"add",
             REMOVE:"remove",
