@@ -13,6 +13,7 @@ module.exports =
     {
         NBR_CONNECTION_LIMIT:20,
         IMAGE_MAX_SIZE:15,
+        MIN_RRCOMMENDATIONS_LIST:4,
         STATUES_CODE :{
             OK:200,
             CREATED:201,

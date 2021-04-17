@@ -173,3 +173,46 @@ module.exports.compressImg = async (buffer)=>{
     return miniBuffer;
 }
 
+
+module.exports.getCommenFollowersLVL1=(myFoolwingList,targetFollowingList)=>{
+    
+    myFoolwingList = ["123","265","789","523","438"]
+    targetFollowingList = ["123","265","700","500","438"]
+    const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
+
+
+    console.log(commenFollowers)
+    return commenFollowers
+
+}
+
+module.exports.getCommenFollowersLVL2= async(myCountry,myFoolwingList,targetFollowingList)=>{
+    
+    myFoolwingList = ["123","265","789","523","438"]
+    targetFollowingList = ["123","265","700","500","438"]
+    const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
+
+    let users = await User.find({ '_id': { $in: commenFollowers }},{'address.country':myCountry} ).exec();
+    let returnIds = []
+    users.forEach(user => {
+        returnIds.push(user._id);
+    });
+    return returnIds
+}
+module.exports.getCommenFollowersLVL3= async(myinteress,myCountry,myFoolwingList,targetFollowingList)=>{
+    
+    myFoolwingList = ["123","265","789","523","438"]
+    targetFollowingList = ["123","265","700","500","438"]
+    const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
+
+    let users = await User.find({ '_id': { $in: commenFollowers }},{'address.country':myCountry},{'interests': { $in: myinteress }} ).exec();
+    let returnIds = []
+    users.forEach(user => {
+        returnIds.push(user._id);
+    });
+    return returnIds
+}
+
+
+
+

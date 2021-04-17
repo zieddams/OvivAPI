@@ -87,6 +87,10 @@ const userSchema=mongoose.Schema({
         follow_date: {type:Date, default: Date.now},
         isFavorite: {type:Boolean, default: false},
     }],
+    following:[{
+        user_id: {type:mongoose.Schema.Types.ObjectId,ref:"user"},
+        follow_date: {type:Date, default: Date.now},
+    }],
 
     notification_list:[
         {

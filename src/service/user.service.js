@@ -6,6 +6,7 @@ const express = require("express");
 const router = express.Router();
 const STATUES = require("../config/config.application").STATUES_CODE;
 const IMAGE_MAX_SIZE = require("../config/config.application").IMAGE_MAX_SIZE;
+const MIN_RRCOMMENDATIONS_LIST = require("../config/config.application").MIN_RRCOMMENDATIONS_LIST;
 const userFunctions = require("../functions/user.functions");
 const multer = require('multer');
 const fs = require('file-system');
@@ -413,12 +414,43 @@ router.post("/followRequest", (req, res) => {
             user.followers.push({
                 user_id: req.user.id,
             })
-            user.save().then(() => {
-                res.json({
-                    code: STATUES.OK,
-                    msg: "You are now a follower",
-                })
+            user.save().then((newUser) => {
+                User.findById(req.user.id).then((myUser)=>{
+                    myUser.following.push({
+                        user_id:newUser._id,
+                        follow_date: req.body.action_date
+                    })
+                    myUser.save().then(()=>{
+                        /*
+                        let usersIdsLVL3 = userFunctions.getCommenFollowersLVL3(myUser.interests,myUser.address.country,myUser.following,user.following)
+                        if(usersIdsLVL3<MIN_RRCOMMENDATIONS_LIST){
+                            let usersIdsLVL2 = userFunctions.getCommenFollowersLVL2(myUser.address.country,myUser.following,user.following)
+                            const usersIdsLVL2LVL3 = [...usersIdsLVL3, ...usersIdsLVL2]
+                            if(usersIdsLVL2LVL3<MIN_RRCOMMENDATIONS_LIST){
+                                let usersIdsLVL1 = userFunctions.getCommenFollowersLVL1(myUser.following,user.following)
+                                const userIdsFinal = [...usersIdsLVL2LVL3, ...usersIdsLVL1]
+                                console.log(userIdsFinal)
+                                //getrecommandedUser(userIdsFinal)
+                            }
+                            else{
+                                console.log(usersIdsLVL2LVL3)
+                                //getrecommandedUser(usersIdsLVL2LVL3)
+                            }
+                        }
+                        else{
+                            console.log(usersIdsLVL3)
+                            //getrecommandedUser(usersIdsLVL3)
+                        }*/
+
+                        res.json({
+                            code: STATUES.OK,
+                            msg: "You are now a follower",
+                        })
+                    })
+                }).catch(err=>console.log(err))
+                
             })
+            
         } else {
             newNotification.notif_type = "follow_request"
             user.notification_list.push(newNotification)
@@ -452,6 +484,7 @@ router.post("/acceptFollow", (req, res) => {
                     update:req.body.action_date
                 }
                 follower.notification_list.push(newNotification)
+                follower.following.push(user._id)
                 follower.save().then(() => {
                     res.json({
                         code: STATUES.OK,

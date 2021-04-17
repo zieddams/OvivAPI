@@ -5,6 +5,8 @@ const userFunctions = require("../functions/user.functions");
 const STATUES = require("../config/config.application").STATUES_CODE;
 const rateLimit = require("express-rate-limit");
 
+
+
 const resetPasswordLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 h
     max: 1, // limit each IP to 1 reset password request/ 1h,
@@ -12,6 +14,11 @@ const resetPasswordLimiter = rateLimit({
 })
 
 module.exports = router;
+
+
+router.get("/testrecommender",(req,res)=>{
+    userFunctions.getRecommandedFollowing(null,null);
+})
 
 router.get("/", (req, res) => {
     let HTMLdisplay = `

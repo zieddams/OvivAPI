@@ -1,9 +1,6 @@
 const mongoose =require("mongoose");
 
 
-
-
-
 const discussionSchema=mongoose.Schema({
     isPaid:{type:Boolean,default:false},
     partners:[{type:mongoose.Schema.Types.ObjectId,ref:"user"}],
