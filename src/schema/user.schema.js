@@ -7,8 +7,8 @@ const userSchema=mongoose.Schema({
     facebookId:{type: String},
     name:{
         username:  { type: String, unique:true, required: true, trim: true, index: true, minLength:6 },
-        lastName:  { type: String, trim: true, minLength:2,maxLength:20, validate :{validator: schemaValidator.OnlyCharacters, msg: 'last name can not accept numbers '}},
-        firstName: { type: String, trim: true, minLength:2,maxLength:20, validate :{validator: schemaValidator.OnlyCharacters, msg: 'first name can not accept numbers '}},
+        lastName:  { type: String, trim: true, minLength:2,maxLength:20, /*validate :{validator: schemaValidator.OnlyCharacters, msg: 'last name can not accept numbers '}*/},
+    firstName: { type: String, trim: true, minLength:2,maxLength:20, /*validate :{validator: schemaValidator.OnlyCharacters, msg: 'first name can not accept numbers '}*/},
         update: {type: Date}
     },
     

@@ -4,6 +4,7 @@ const router = express.Router();
 const userFunctions = require("../functions/user.functions");
 const STATUES = require("../config/config.application").STATUES_CODE;
 const rateLimit = require("express-rate-limit");
+const userTesting = require("../UnitTesingScenes/users")
 
 
 
@@ -16,8 +17,9 @@ const resetPasswordLimiter = rateLimit({
 module.exports = router;
 
 
-router.get("/testrecommender",(req,res)=>{
-    userFunctions.getRecommandedFollowing(null,null);
+router.get("/test/createRandromUsers",(req,res)=>{
+    userTesting.createRandomUser()
+    res.send('done')
 })
 
 router.get("/", (req, res) => {
