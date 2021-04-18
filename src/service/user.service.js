@@ -6,7 +6,7 @@ const express = require("express");
 const router = express.Router();
 const STATUES = require("../config/config.application").STATUES_CODE;
 const IMAGE_MAX_SIZE = require("../config/config.application").IMAGE_MAX_SIZE;
-const MIN_RRCOMMENDATIONS_LIST = require("../config/config.application").MIN_RRCOMMENDATIONS_LIST;
+const MIN_RECOMMENDATIONS_LIST = require("../config/config.application").MIN_RECOMMENDATIONS_LIST;
 const userFunctions = require("../functions/user.functions");
 const multer = require('multer');
 const fs = require('file-system');
@@ -47,10 +47,10 @@ router.post("/updatePassword", (req, res) => {
 });
 router.post("/validate", (req, res) => {
     User.findById(req.user.id).then((user) => {
-        userFunctions.SendVerifyEmail(user._id,user.email.value,user.name.username,user.secretCode);
+        userFunctions.SendVerifyEmail(user._id, user.email.value, user.name.username, user.secretCode);
         res.json({
-            code:STATUES.OK,
-            msg:"email sended"
+            code: STATUES.OK,
+            msg: "email sended"
         });
     }).catch(err => {
         res.json({
@@ -297,7 +297,7 @@ router.post("/updateProfilePic", upload.single("profilePic"), async (req, res) =
                 let pic = {
                     isProfilePic: true,
                     data: minibuffer,
-                    update:req.body.action_date
+                    update: req.body.action_date
                 }
                 user.gallery.images.push(pic);
             }
@@ -377,7 +377,7 @@ router.post("/uploadPic", upload.single("newPic"), async (req, res) => {
     } else {
         User.findById(req.user.id).then(async user => {
             if (user.gallery.images.length < 5) {
-               console.log("size before compress => "+imgData.toString().length)
+                console.log("size before compress => " + imgData.toString().length)
                 minibuffer = await userFunctions.compressImg(imgData)
                 /*console.log("size after compress => "+minibuffer.toString().length)
                x_minibuffer = await userFunctions.compressImg(minibuffer)
@@ -385,7 +385,7 @@ router.post("/uploadPic", upload.single("newPic"), async (req, res) => {
                 newImgData = {
                     text: imgDesc,
                     data: x_minibuffer,
-                    update:req.body.action_date
+                    update: req.body.action_date
                 }
                 user.gallery.images.push(newImgData);
                 user.save().then(() => {
@@ -407,7 +407,7 @@ router.post("/followRequest", (req, res) => {
         newNotification = {
             notif_type: "newfollow",
             target_user_id: req.user.id,
-            update:req.body.action_date
+            update: req.body.action_date
         }
         if (user.isFollowPublic) {
             user.notification_list.push(newNotification)
@@ -415,12 +415,12 @@ router.post("/followRequest", (req, res) => {
                 user_id: req.user.id,
             })
             user.save().then((newUser) => {
-                User.findById(req.user.id).then((myUser)=>{
+                User.findById(req.user.id).then((myUser) => {
                     myUser.following.push({
-                        user_id:newUser._id,
+                        user_id: newUser._id,
                         follow_date: req.body.action_date
                     })
-                    myUser.save().then(()=>{
+                    myUser.save().then(() => {
                         /*
                         let usersIdsLVL3 = userFunctions.getCommenFollowersLVL3(myUser.interests,myUser.address.country,myUser.following,user.following)
                         if(usersIdsLVL3<MIN_RRCOMMENDATIONS_LIST){
@@ -447,10 +447,10 @@ router.post("/followRequest", (req, res) => {
                             msg: "You are now a follower",
                         })
                     })
-                }).catch(err=>console.log(err))
-                
+                }).catch(err => console.log(err))
+
             })
-            
+
         } else {
             newNotification.notif_type = "follow_request"
             user.notification_list.push(newNotification)
@@ -473,7 +473,7 @@ router.post("/acceptFollow", (req, res) => {
         }
         let newFollowObj = {
             user_id: req.body.newFollower,
-            follow_date:req.body.action_date
+            follow_date: req.body.action_date
         }
         user.followers.push(newFollowObj)
         user.save().then(() => {
@@ -481,7 +481,7 @@ router.post("/acceptFollow", (req, res) => {
                 let newNotification = {
                     notif_type: "followAccepted",
                     target_user_id: req.user.id,
-                    update:req.body.action_date
+                    update: req.body.action_date
                 }
                 follower.notification_list.push(newNotification)
                 follower.following.push(user._id)
@@ -585,15 +585,15 @@ router.post("/likePic", (req, res) => {
             }).catch(err => res.send(err))
         } else {
             let newLike = {
-                user:req.user.id,
-                like_date:req.body.action_date
+                user: req.user.id,
+                like_date: req.body.action_date
             }
             user.gallery.images[imageIndex].likes.push(newLike)
             if (!req.user.id.equals(userId)) {
                 let newNotification = {
                     notif_type: "picReaction",
                     target_user_id: req.user.id,
-                    update:req.body.action_date
+                    update: req.body.action_date
                 }
                 user.notification_list.push(newNotification)
             }
@@ -621,7 +621,7 @@ router.post("/commentPic", (req, res) => {
                 let newNotification = {
                     notif_type: "picComment",
                     target_user_id: req.user.id,
-                    update:req.body.action_date
+                    update: req.body.action_date
                 }
                 user.notification_list.push(newNotification)
             }
@@ -658,7 +658,7 @@ router.post("/likeComment", (req, res) => {
                         let newNotification = {
                             notif_type: "reactComment",
                             target_user_id: req.user.id,
-                            update:req.body.action_date
+                            update: req.body.action_date
                         }
                         commentor.notification_list.push(newNotification)
                         commentor.save().then(() => {
@@ -675,14 +675,3 @@ router.post("/likeComment", (req, res) => {
 
     })
 })
-
-
-router.get("/hello", (req, res) => {
-
-
-  
-
-
-
-
-});
