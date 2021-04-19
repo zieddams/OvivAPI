@@ -32,18 +32,12 @@ router.get("/test/createRandromUsers",(req,res)=>{
 router.get("/", (req, res) => {
 
     const nav = `
-    <details>
-    <summary>/</summary>
-    <details>
-    <summary>/</summary>
-        welcom oviv
-        <summary>/resetPassword</summary>
-        params :  [email]
-        <summary>/verify/:id/:secretCode</summary>
-        params : none
-    </details>
-    </details>
-
+    <h3>/    </3>
+    <p>params [none]</p>
+    <h3>/resetPassword </3>
+    <p>params [email]</p>
+    <h3>/verify/:id/:secretCode<h3>
+    <p>params [none]</p>
     `
     let HTMLdisplay =nav+ `
     <div style="height: 100%;display: flex;align-items: center;justify-content: center;">
