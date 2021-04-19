@@ -32,12 +32,85 @@ router.get("/test/createRandromUsers",(req,res)=>{
 router.get("/", (req, res) => {
 
     const nav = `
-    <h3>/    </3>
-    <p>params [none]</p>
-    <h3>/resetPassword </3>
-    <p>params [email]</p>
-    <h3>/verify/:id/:secretCode<h3>
-    <p>params [none]</p>
+    <style>
+    .container{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .item,.item2{
+        margin: 5px;
+        padding: 5px;
+      }
+      
+      .item2{
+        display: flex;
+      }
+      .item2>div{
+        flex: 1;
+        display: flex;
+        flex-direction: column
+      }
+      
+      .item2>div>h3{
+        align-self: center;
+      }
+    </style>
+    <nav class="container">
+
+  <div class="item2">
+
+  <!--item-->
+    <div>
+      <h3>/ROUTE2</h3>
+      <details>
+        <summary>/user</summary>
+        description user
+      </details>
+
+      <details>
+        <summary>/user 1</summary>
+        description user
+      </details>
+    </div>
+
+
+    <!--item-->
+    <div>
+      <h3>/ROUTE2</h3>
+
+      <details>
+        <summary>/user</summary>
+        description user
+      </details>
+
+      <details>
+        <summary>/user 1</summary>
+        description user
+      </details>
+
+    </div>
+
+    <!--item-->
+    <div>
+      <h3>/ROUTE2</h3>
+
+      <details>
+        <summary>/user</summary>
+        description user
+      </details>
+
+      <details>
+        <summary>/user 1</summary>
+        description user
+      </details>
+
+    </div>
+
+
+
+  </div>
+</nav>
     `
     let HTMLdisplay =nav+ `
     <div style="height: 100%;display: flex;align-items: center;justify-content: center;">
