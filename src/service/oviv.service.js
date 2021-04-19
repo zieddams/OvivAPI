@@ -6,6 +6,8 @@ const STATUES = require("../config/config.application").STATUES_CODE;
 const rateLimit = require("express-rate-limit");
 const userTesting = require("../UnitTesingScenes/users")
 
+const  get_ip = require('ipware')().get_ip;
+
 
 
 const resetPasswordLimiter = rateLimit({
@@ -17,7 +19,8 @@ const resetPasswordLimiter = rateLimit({
 module.exports = router;
 
 router.get("/ip",(req,res)=>{
-    res.send(req.connection.remoteAddress);
+    ip  = get_ip(req);
+    res.send(ip)
 })
 
 
