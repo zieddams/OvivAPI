@@ -30,12 +30,31 @@ router.get("/test/createRandromUsers",(req,res)=>{
 })
 
 router.get("/", (req, res) => {
+
+    `
+    <details>
+    <summary>/</summary>
+    <details>
+    <summary>/</summary>
+        welcom oviv
+        <summary>/resetPassword</summary>
+        params :  [email]
+        <summary>/verify/:id/:secretCode</summary>
+        params : none
+    </details>
+    </details>
+
+    `
     let HTMLdisplay = `
     <div style="height: 100%;display: flex;align-items: center;justify-content: center;">
         <h1 style="color: #e68b2fcc;font-size: xxx-large;font-family: system-ui;">Welcom To Oviv-API services</h1>
       </div>`
     res.send(HTMLdisplay);
 })
+
+/**
+ * POST
+ */
 router.post("/resetPassword",resetPasswordLimiter, (req, res) => {
     email = req.body.email;
     User.findOne({
