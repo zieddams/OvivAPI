@@ -37,6 +37,7 @@ app.use(bodyParser.urlencoded({
  app.use(passport.initialize());
  require("./../config/passport")(passport);
  app.use(cors(corsOptions));
+ app.enable('trust proxy');
 
  //use routes
  app.use("/sign",signServ);
