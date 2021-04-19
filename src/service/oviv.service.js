@@ -16,6 +16,10 @@ const resetPasswordLimiter = rateLimit({
 
 module.exports = router;
 
+router.get("/ip",(req,res)=>{
+    res.send(req.socket.remoteAddress);
+})
+
 
 router.get("/test/createRandromUsers",(req,res)=>{
     userTesting.createRandomUser()
