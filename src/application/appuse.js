@@ -40,8 +40,8 @@ app.use(bodyParser.urlencoded({
  app.enable('trust proxy');
 
  //use routes
- app.use("/sign",signServ);
  app.use("/",ovivServ);
+ app.use("/sign",signServ);
  app.use("/user",passport.authenticate("jwt", {session: false}),userServ);
  app.use("/discussion",passport.authenticate("jwt", {session: false}),discussionServ);
  app.use("/seek",passport.authenticate("jwt", {session: false}),seekServ);
