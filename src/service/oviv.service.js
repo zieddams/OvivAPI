@@ -31,7 +31,7 @@ router.get("/test/createRandromUsers",(req,res)=>{
 
 router.get("/", (req, res) => {
 
-    `
+    const nav = `
     <details>
     <summary>/</summary>
     <details>
@@ -45,7 +45,7 @@ router.get("/", (req, res) => {
     </details>
 
     `
-    let HTMLdisplay = `
+    let HTMLdisplay =nav+ `
     <div style="height: 100%;display: flex;align-items: center;justify-content: center;">
         <h1 style="color: #e68b2fcc;font-size: xxx-large;font-family: system-ui;">Welcom To Oviv-API services</h1>
       </div>`
