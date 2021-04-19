@@ -40,7 +40,7 @@ router.post("/up", (req, res) => {
          * username
          * secretCode
          */
-        userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
+        //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
 
         res.json({ code: STATUES.CREATED, msg: 'user created and email veryfication sended'})
 
