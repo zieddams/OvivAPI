@@ -48,9 +48,9 @@ module.exports = (passport) => {
             async (req,accessToken, refreshToken, profile, done) => {
                 try {
                     //console.log(GOOGLE_OAUTH_options.clientID)
-                    let user = await User.findOne({
+                    let user = await User.findOne({$or :[{
                         googleId: profile.id
-                    })
+                    },{"email.value" : profile._json.email}]})
                     if (user) {
                         return done(null, user)
                     } else {
