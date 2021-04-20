@@ -34,6 +34,15 @@ application.initServer = () => {
     app.use(bodyParser.urlencoded({
         extended: false
     }));
+    app.use((req, res, next) => {
+        res.setHeader("Access-Control-Allow-Origin", "*");
+        res.setHeader(
+          "Access-Control-Allow-Methods",
+          "OPTIONS, GET, POST, PUT, PATCH, DELETE"
+        );
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        next(); // dont forget this
+      });
     app.use(bodyParser.json());
     app.use(passport.initialize());
     require("./../config/passport")(passport);
