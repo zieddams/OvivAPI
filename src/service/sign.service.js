@@ -170,7 +170,7 @@ router.post("/in",loginLimiter, (req, res) => {
 router.get("/google", passport.authenticate('google', {
     scope: ['profile', 'email']
 }),(req,res)=>{
-    response.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+   // response.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
     //add_header  'http://localhost:4200' always;
 })
 

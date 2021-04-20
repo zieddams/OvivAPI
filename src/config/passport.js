@@ -17,7 +17,7 @@ JWT_options.secretOrKey = process.env.SECRET_OR_KEY
 GOOGLE_OAUTH_options.clientID = process.env.GOOGLE_CLIENT_ID
 GOOGLE_OAUTH_options.clientSecret = process.env.GOOGLE_CLIENT_SECRET
 GOOGLE_OAUTH_options.callbackURL = "/sign/auth/google/callback"
-
+GOOGLE_OAUTH_options.proxy = true
 FACEBOOK_options.clientID = process.env.FACEBOOK_CLIENT_ID
 FACEBOOK_options.clientSecret = process.env.FACEBOOK_CLIENT_SECRET
 FACEBOOK_options.callbackURL = "/sign/auth/facebook/callback"
