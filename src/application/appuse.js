@@ -22,12 +22,10 @@ const ovivServ = require("../service/oviv.service")
 
 
 //https://www.npmjs.com/package/cors
-let corsOptions = {
-    origin: function (origin, callback) {
-        callback(null, true)
-    },
+/*let corsOptions = {
+    origin: ,
     methods: "GET, PUT, POST"
-}
+}*/
 
 application.initServer = () => {
     app.use(compression({
@@ -39,7 +37,7 @@ application.initServer = () => {
     app.use(bodyParser.json());
     app.use(passport.initialize());
     require("./../config/passport")(passport);
-    app.use(cors(corsOptions));
+    app.use(cors());
     app.enable('trust proxy');
     app.use(helmet());
 
