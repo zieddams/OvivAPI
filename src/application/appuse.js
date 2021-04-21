@@ -1,16 +1,18 @@
 application = module.exports = {}
 const Express = require("express");
-const PORT = process.env.PORT
 const app = Express();
-const bodyParser = require('body-parser');
 const passport = require("passport");
-const helmet = require('helmet');
-
 const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 const dotenv = require('dotenv').config();
 const compression = require("compression");
+
+// security dependencies
+
 const cors = require("cors");
+const helmet = require('helmet');
+const xss = require('xss-clean');
+const mongoSanitize = require('express-mongo-sanitize');
 
 // import main routes
 const signServ = require("../service/sign.service")
@@ -28,29 +30,27 @@ const ovivServ = require("../service/oviv.service")
 }*/
 
 application.initServer = () => {
+
+    /** && */
+    app.use(passport.initialize());
+    require("./../config/passport")(passport);
+
     app.use(compression({
         level: 6
     }));
-    app.use(bodyParser.urlencoded({
-        extended: false
-    }));
-    app.use((req, res, next) => {
-        res.setHeader("Access-Control-Allow-Origin", "*");
-        res.setHeader(
-          "Access-Control-Allow-Methods",
-          "OPTIONS, GET, POST, PUT, PATCH, DELETE"
-        );
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        next(); // dont forget this
-      });
-    app.use(bodyParser.json());
-    app.use(passport.initialize());
-    require("./../config/passport")(passport);
-    app.use(cors());
-    app.enable('trust proxy');
-    app.use(helmet());
 
-    //use routes
+    app.use(Express.urlencoded({extended: false}));
+    app.use(Express.json())
+
+    // security
+
+    app.use(cors());
+    app.use(helmet());
+    app.use(xss())
+    app.use(mongoSanitize());
+    app.enable('trust proxy');
+
+    //use main routes
     app.use("/", ovivServ);
     app.use("/sign", signServ);
     app.use("/user", passport.authenticate("jwt", {
@@ -69,11 +69,3 @@ application.exeServer = () => {
     console.log(`Server is working on ${process.env.PORT}`)
     http.listen(process.env.PORT);
 }
-
-/*io.on('connection', (socket)=> {
-  console.log('Client connected to the WebSocket');
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});*/

@@ -2,8 +2,6 @@ const JwtStrategy = require("passport-jwt").Strategy;
 const GoogleStrategy = require("passport-google-oauth20").Strategy
 const FacebookStrategy = require("passport-facebook").Strategy
 const ExtractJwt = require("passport-jwt").ExtractJwt;
-const mongoose = require("mongoose");
-const passport = require("passport");
 const User = require("./../schema/user.schema")
 const bcrypt = require("bcryptjs");
 const JWT_options = {};
@@ -21,12 +19,12 @@ GOOGLE_OAUTH_options.proxy = true
 FACEBOOK_options.clientID = process.env.FACEBOOK_CLIENT_ID
 FACEBOOK_options.clientSecret = process.env.FACEBOOK_CLIENT_SECRET
 FACEBOOK_options.callbackURL = "/sign/auth/facebook/callback"
-FACEBOOK_options.profileFields = ["id", "birthday", "email", "first_name",/*, "user_gender",*/ "last_name","picture.width(200).height(200)"];
+FACEBOOK_options.profileFields = ["id", "birthday", "email", "first_name", /*, "user_gender",*/ "last_name", "picture.width(200).height(200)"];
 
 module.exports = (passport) => {
 
     passport.use(
-        new JwtStrategy(JWT_options,async (jwt_payload, done) => {
+        new JwtStrategy(JWT_options, async (jwt_payload, done) => {
 
             User.findById(jwt_payload.id).then((user) => {
                 if (user) {
@@ -45,14 +43,25 @@ module.exports = (passport) => {
     );
     passport.use(
         new GoogleStrategy(GOOGLE_OAUTH_options,
-            async (req,accessToken, refreshToken, profile, done) => {
+            async (req, accessToken, refreshToken, profile, done) => {
                 try {
                     //console.log(GOOGLE_OAUTH_options.clientID)
-                    let user = await User.findOne({$or :[{
-                        googleId: profile.id
-                    },{"email.value" : profile._json.email}]})
+                    let user = await User.findOne({
+                        $or: [{
+                            googleId: profile.id
+                        }, {
+                            "email.value": profile._json.email
+                        }]
+                    })
                     if (user) {
+                        if (!user.googleId) {
+                            user.googleId = profile.id,
+                                user.save().then(savedUser => {
+                                    return done(null, savedUser)
+                                })
+                        }
                         return done(null, user)
+
                     } else {
                         let salt = bcrypt.genSaltSync(10)
                         let hashPassword = bcrypt.hashSync(profile.id, salt)
@@ -79,34 +88,37 @@ module.exports = (passport) => {
             }
         )
     );
-    passport.use(new FacebookStrategy(FACEBOOK_options, 
-        async (accessToken, refreshToken, profile, done)=>{
+    passport.use(new FacebookStrategy(FACEBOOK_options,
+        async (accessToken, refreshToken, profile, done) => {
             try {
                 let user = await User.findOne({
+                    $or: [{
                         facebookId: profile.id
+                    }, {
+                        "email.value": profile._json.email
+                    }]
                 })
                 if (user) {
-                        return done(null, user)
-                    }
-                else{
+                    return done(null, user)
+                } else {
                     let salt = bcrypt.genSaltSync(10)
                     let hashPassword = bcrypt.hashSync(profile.id, salt)
                     const newUser = {
-                            facebookId: profile.id,
-                            name: {
-                                username: profile._json.first_name+profile._json.last_name,
-                                lastName: profile._json.last_name,
-                                firstName: profile._json.first_name
-                            },
-                            email: {
-                                value: profile._json.email
-                            },
-                            password: {
-                                value: hashPassword
-                            }
+                        facebookId: profile.id,
+                        name: {
+                            username: profile._json.first_name + profile._json.last_name,
+                            lastName: profile._json.last_name,
+                            firstName: profile._json.first_name
+                        },
+                        email: {
+                            value: profile._json.email
+                        },
+                        password: {
+                            value: hashPassword
                         }
-                        user = await User.create(newUser)
-                        return done(null, user)
+                    }
+                    user = await User.create(newUser)
+                    return done(null, user)
                 }
             } catch (err) {
                 console.error(err)
