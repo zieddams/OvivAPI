@@ -167,7 +167,50 @@ router.post("/in",loginLimiter, (req, res) => {
     });
 });
 
-router.get("/google", passport.authenticate('google', {
+router.post("/google",(req,res)=>{
+    google_profile = req.body.google_profile;
+    let salt = bcrypt.genSaltSync(10)
+    let hashPassword = bcrypt.hashSync(google_profile.id, salt)
+    const secretCode = userFunctions.createSecretCode()
+    const newUser = new User({
+        name: {
+            firstName:google_profile.firstName,
+            lastName:google_profile.lastName,
+            username:google_profile.name
+
+        },
+        email: {
+            value:google_profile.email
+        },
+        password: {
+            value: hashPassword
+        },
+        address: "Tn",
+        created_date: req.body.created_date,
+        secretCode,
+        oviv_currency: 100
+    });
+
+    newUser.save().then((user) => {
+        /**
+         * email
+         * username
+         * secretCode
+         */
+        //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
+
+        res.json({ code: STATUES.CREATED, msg: 'user created and email veryfication sended'})
+
+    }).catch((err) => {
+        res.json({
+            code: STATUES.NOT_VALID,
+            msg: err,
+        });
+    });
+
+})
+
+/*router.get("/google", passport.authenticate('google', {
     scope: ['profile', 'email']
 }),(req,res)=>{
    // response.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
@@ -195,7 +238,7 @@ router.get('/auth/google/callback', passport.authenticate('google', {
             });
             }
     });
-})
+})*/
 
 router.get("/facebook", passport.authenticate('facebook',{scope: 'email'}))
 

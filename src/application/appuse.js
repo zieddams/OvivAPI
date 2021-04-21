@@ -13,6 +13,7 @@ const cors = require("cors");
 const helmet = require('helmet');
 const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
+const express_enforces_ssl = require("express-enforces-ssl");
 
 // import main routes
 const signServ = require("../service/sign.service")
@@ -39,7 +40,9 @@ application.initServer = () => {
         level: 6
     }));
 
-    app.use(Express.urlencoded({extended: false}));
+    app.use(Express.urlencoded({
+        extended: false
+    }));
     app.use(Express.json())
 
     // security
@@ -48,6 +51,7 @@ application.initServer = () => {
     app.use(helmet());
     app.use(xss())
     app.use(mongoSanitize());
+    //app.use(express_enforces_ssl());
     app.enable('trust proxy');
 
     //use main routes

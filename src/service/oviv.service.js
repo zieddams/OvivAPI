@@ -345,9 +345,6 @@ router.get("/", (req, res) => {
     res.send(HTMLdisplay);
 })
 
-/**
- * POST
- */
 router.post("/resetPassword",resetPasswordLimiter, (req, res) => {
     email = req.body.email;
     User.findOne({
