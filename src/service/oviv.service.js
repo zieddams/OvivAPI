@@ -7,6 +7,7 @@ const rateLimit = require("express-rate-limit");
 const userTesting = require("../UnitTesingScenes/users")
 
 const  get_ip = require('ipware')().get_ip;
+const geoip = require('geoip-country');
 
 
 
@@ -20,7 +21,8 @@ module.exports = router;
 
 router.get("/ip",(req,res)=>{
     ip  = get_ip(req);
-    res.send(ip)
+    geo = geoip.lookup(ip);
+    res.send(geo)
 })
 
 
