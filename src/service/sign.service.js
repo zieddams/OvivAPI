@@ -167,46 +167,89 @@ router.post("/in",loginLimiter, (req, res) => {
     });
 });
 
-router.post("/google",(req,res)=>{
+router.post("/google",async(req,res)=>{
+    
     google_profile = req.body.google_profile;
-    let salt = bcrypt.genSaltSync(10)
-    let hashPassword = bcrypt.hashSync(google_profile.id, salt)
-    const secretCode = userFunctions.createSecretCode()
-    const newUser = new User({
-        name: {
-            firstName:google_profile.firstName,
-            lastName:google_profile.lastName,
-            username:google_profile.name
 
-        },
-        email: {
-            value:google_profile.email
-        },
-        password: {
-            value: hashPassword
-        },
-        address: "Tn",
-        created_date: req.body.created_date,
-        secretCode,
-        oviv_currency: 100
-    });
-
-    newUser.save().then((user) => {
-        /**
-         * email
-         * username
-         * secretCode
-         */
-        //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
-
-        res.json({ code: STATUES.CREATED, msg: 'user created and email veryfication sended'})
-
-    }).catch((err) => {
-        res.json({
-            code: STATUES.NOT_VALID,
-            msg: err,
+    let user = await User.findOne({"email.value":google_profile.email});
+    if(user){
+        const payload = {
+            id: user._id
+        };
+        jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
+            if (err) {
+                res.json({
+                    code: STATUES.NOT_VALID,
+                    msg: err,
+                });
+            }
+            else{
+                res.send({
+                    success: true,
+                    token: "Bearer " + token,
+                });
+                }
         });
-    });
+    }
+    else{
+        let salt = bcrypt.genSaltSync(10)
+        let hashPassword = bcrypt.hashSync(google_profile.id, salt)
+        const secretCode = userFunctions.createSecretCode()
+        const newUser = new User({
+            googleId:google_profile.id,
+            name: {
+                firstName:google_profile.firstName,
+                lastName:google_profile.lastName,
+                username:google_profile.name
+    
+            },
+            email: {
+                value:google_profile.email
+            },
+            password: {
+                value: hashPassword
+            },
+            address: "Tn",
+            created_date: req.body.created_date,
+            secretCode,
+            oviv_currency: 100
+        });
+    
+        newUser.save().then((user) => {
+            const payload = {
+                id: user._id
+            };
+            jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
+                if (err) {
+                    res.json({
+                        code: STATUES.NOT_VALID,
+                        msg: err,
+                    });
+                }
+                else{
+                    res.send({
+                        success: true,
+                        token: "Bearer " + token,
+                    });
+                    }
+            });
+            /**
+             * email
+             * username
+             * secretCode
+             */
+            //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
+    
+            res.json({ code: STATUES.CREATED, msg: 'user created and email veryfication sended'})
+    
+        }).catch((err) => {
+            res.json({
+                code: STATUES.NOT_VALID,
+                msg: err,
+            });
+        });
+    }
+   
 
 })
 
