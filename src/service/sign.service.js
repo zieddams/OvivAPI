@@ -3,16 +3,12 @@ const Discussion = require("../schema/discussion.schema");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const express = require("express");
-const passport = require("passport");
 const router = express.Router();
 const STATUES = require("../config/config.application").STATUES_CODE;
 const userFunctions = require("../functions/user.functions");
 const rateLimit = require("express-rate-limit");
 const getLocation = require("../middleware/routingmiddleware").setLocation;
 
-
-const get_ip = require('ipware')().get_ip;
-const geoip = require('geoip-country');
 module.exports = router;
 
 const loginLimiter = rateLimit({
@@ -268,12 +264,16 @@ router.post("/isNew", (req, res) => {
     });
 
 })
-router.post("/google",getLocation,(req, res) => {
-    console.log("C : "+JSON.stringify(req.country)+" : "+JSON.stringify(req.country_code))
-    ip = get_ip(req);
+router.post("/google",getLocation,async(req, res) => {
 
-    geo = geoip.lookup(ip.clientIp);
     google_profile = req.body.google_profile;
+
+    const miniBuffer = await userFunctions.downloadBuffer(google_profile.photoUrl)
+    let profile_pic = {
+        isProfilePic: true,
+        data: miniBuffer,
+        update: google_profile.continue.created_date
+    }
     let salt = bcrypt.genSaltSync(10)
     let hashPassword = bcrypt.hashSync(google_profile.id, salt)
     const secretCode = userFunctions.createSecretCode()
@@ -300,12 +300,9 @@ router.post("/google",getLocation,(req, res) => {
         created_date : google_profile.continue.created_date,
         isVerified: true,
         secretCode,
-        oviv_currency: 100
+        oviv_currency: 100,
+        gallery:{images:[profile_pic]}
     });
-    /*console.log(ip)
-    console.log(geo)*/
-
-
     newUser.save().then((user) => { 
         console.log("user saved")
         const payload = {
