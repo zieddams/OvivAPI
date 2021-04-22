@@ -268,10 +268,10 @@ router.post("/isNew", (req, res) => {
     });
 
 })
-router.post("/google",getLocation,(req, res) => {
-    /*ip = get_ip(req);
+router.post("/google"/*,getLocation*/,(req, res) => {
+    ip = get_ip(req);
 
-    geo = geoip.lookup(ip.clientIp);*/
+    geo = geoip.lookup(ip.clientIp);
     google_profile = req.body.google_profile;
     let salt = bcrypt.genSaltSync(10)
     let hashPassword = bcrypt.hashSync(google_profile.id, salt)
@@ -293,8 +293,8 @@ router.post("/google",getLocation,(req, res) => {
             value: hashPassword
         },
         address: {
-            country_code:req.country_code,
-            country: req.country
+            /*country_code:req.country_code,*/
+            country:geo.country /*req.country*/
         },
         created_date : google_profile.continue.created_date,
         isVerified: true,
