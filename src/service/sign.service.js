@@ -8,7 +8,7 @@ const router = express.Router();
 const STATUES = require("../config/config.application").STATUES_CODE;
 const userFunctions = require("../functions/user.functions");
 const rateLimit = require("express-rate-limit");
-
+const getLocation = require("../middleware/routingmiddleware").setLocation;
 module.exports = router;
 
 const loginLimiter = rateLimit({
@@ -42,7 +42,10 @@ router.post("/up", (req, res) => {
          */
         //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
 
-        res.json({ code: STATUES.CREATED, msg: 'user created and email veryfication sended'})
+        res.json({
+            code: STATUES.CREATED,
+            msg: 'user created and email veryfication sended'
+        })
 
     }).catch((err) => {
         res.json({
@@ -57,7 +60,7 @@ router.post("/up", (req, res) => {
 
 });
 
-router.post("/in",loginLimiter, (req, res) => {
+router.post("/in", loginLimiter, (req, res) => {
     const authenticator = req.body.authenticator;
     const password = req.body.password;
     User.findOne().or([{
@@ -72,26 +75,26 @@ router.post("/in",loginLimiter, (req, res) => {
             bcrypt.compare(password, user.password.value).then((isMatch) => {
                 if (isMatch) {
                     /**
-                         * user_payload : 
-                         * id,
-                         * name,
-                         * photo de profile
-                         * nb followers
-                         * oviv_currency
-                         * description
-                         * isVerified
-                         * nb notification_list [is_seen == false]
-                         * nb mseesages [ is_seen == false]
-                         */
+                     * user_payload : 
+                     * id,
+                     * name,
+                     * photo de profile
+                     * nb followers
+                     * oviv_currency
+                     * description
+                     * isVerified
+                     * nb notification_list [is_seen == false]
+                     * nb mseesages [ is_seen == false]
+                     */
                     const payload = {
                         id: user._id
                     };
-                    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async(err, token) => {
+                    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async (err, token) => {
                         if (err) {
                             res.json({
                                 code: STATUES.NOT_VALID,
                                 msg: err,
-                            });   
+                            });
                         }
                         /*if (user.connection.length !== keys.NBR_CONNECTION_LIMIT) {
                             user.connection.push(req.body.connection);
@@ -101,33 +104,37 @@ router.post("/in",loginLimiter, (req, res) => {
                             user.connection.push(req.body.connection);
                             user.save();
                         }*/
-                        
-                        
+
+
                         let user_payload = {
-                            id:user._id,
-                            name:user.name,
+                            id: user._id,
+                            name: user.name,
                             nbFollowers: user.followers.length,
-                            oviv_currency:user.oviv_currency,
+                            oviv_currency: user.oviv_currency,
                             description: user.description,
-                            isVerified:user.isVerified,
+                            isVerified: user.isVerified,
                         }
                         img = user.gallery.images.find(img => img.isProfilePic)
 
                         notficationsNotSeen = user.notification_list.filter(notification => !notification.is_seen)
-                        if(img){
+                        if (img) {
 
                             const base64data = Buffer.from(img.data).toString('base64');
                             user_payload.profilePic = base64data
                         }
-                        if(notficationsNotSeen){
+                        if (notficationsNotSeen) {
 
                             user_payload.nb_new_notifications = notficationsNotSeen.length
                         }
-                        let discss = await  Discussion.find({partners: user._id }).exec();
-                       let msgnotSeenCount = 0
+                        let discss = await Discussion.find({
+                            partners: user._id
+                        }).exec();
+                        let msgnotSeenCount = 0
                         discss.forEach(dis => {
-                            msgs = dis.message.filter(msg =>{ (msg.sender != user._id) && (!msg.is_seen)})
-                            msgnotSeenCount+=msgs.length;
+                            msgs = dis.message.filter(msg => {
+                                (msg.sender != user._id) && (!msg.is_seen)
+                            })
+                            msgnotSeenCount += msgs.length;
                         });
                         user_payload.nb_new_mseesages = msgnotSeenCount
                         res.json({
@@ -167,48 +174,53 @@ router.post("/in",loginLimiter, (req, res) => {
     });
 });
 
-router.post("/google",async(req,res)=>{
-    
+router.post("/google", getLocation, async (req, res) => {
+
     google_profile = req.body.google_profile;
 
-    let user = await User.findOne({"email.value":google_profile.email});
-    if(user){
+    let user = await User.findOne({
+        "email.value": google_profile.email
+    });
+    if (user) {
         const payload = {
             id: user._id
         };
-        jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async(err, token) => {
+        jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async (err, token) => {
             if (err) {
                 res.json({
                     code: STATUES.NOT_VALID,
                     msg: err,
                 });
-            }
-            else{
+            } else {
                 let user_payload = {
-                    id:user._id,
-                    name:user.name,
+                    id: user._id,
+                    name: user.name,
                     nbFollowers: user.followers.length,
-                    oviv_currency:user.oviv_currency,
+                    oviv_currency: user.oviv_currency,
                     description: user.description,
-                    isVerified:user.isVerified,
+                    isVerified: user.isVerified,
                 }
                 img = user.gallery.images.find(img => img.isProfilePic)
 
                 notficationsNotSeen = user.notification_list.filter(notification => !notification.is_seen)
-                if(img){
+                if (img) {
 
                     const base64data = Buffer.from(img.data).toString('base64');
                     user_payload.profilePic = base64data
                 }
-                if(notficationsNotSeen){
+                if (notficationsNotSeen) {
 
                     user_payload.nb_new_notifications = notficationsNotSeen.length
                 }
-                let discss = await  Discussion.find({partners: user._id }).exec();
-               let msgnotSeenCount = 0
+                let discss = await Discussion.find({
+                    partners: user._id
+                }).exec();
+                let msgnotSeenCount = 0
                 discss.forEach(dis => {
-                    msgs = dis.message.filter(msg =>{ (msg.sender != user._id) && (!msg.is_seen)})
-                    msgnotSeenCount+=msgs.length;
+                    msgs = dis.message.filter(msg => {
+                        (msg.sender != user._id) && (!msg.is_seen)
+                    })
+                    msgnotSeenCount += msgs.length;
                 });
                 user_payload.nb_new_mseesages = msgnotSeenCount
                 res.json({
@@ -217,72 +229,85 @@ router.post("/google",async(req,res)=>{
                     token: "Bearer " + token,
                     user_payload
                 });
-                }
+            }
         });
-    }
-    else{
+    } else {
         let salt = bcrypt.genSaltSync(10)
         let hashPassword = bcrypt.hashSync(google_profile.id, salt)
         const secretCode = userFunctions.createSecretCode()
         const newUser = new User({
-            googleId:google_profile.id,
+            googleId: google_profile.id,
             name: {
-                firstName:google_profile.firstName,
-                lastName:google_profile.lastName,
-                username:google_profile.name
-    
+                firstName: google_profile.firstName,
+                lastName: google_profile.lastName,
+                username: google_profile.name
+
             },
             email: {
-                value:google_profile.email
+                value: google_profile.email
             },
             password: {
                 value: hashPassword
             },
-            address: "Tn",
-            isVerified:true,
+
+            isVerified: true,
             created_date: req.body.created_date,
             secretCode,
             oviv_currency: 100
         });
-    
+        if (req.get(IpCountry)) {
+            addss = req.get(IpCountry);
+            newUser.address = {
+                country: addss.countryName,
+                country_code: addss.countryCode
+            }
+        } else {
+            newUser.address = {
+                country: req.country
+            }
+        }
+
         newUser.save().then((user) => {
-        //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
+            //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
             const payload = {
                 id: user._id
             };
-            jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async(err, token) => {
+            jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async (err, token) => {
                 if (err) {
                     res.json({
                         code: STATUES.NOT_VALID,
                         msg: err,
                     });
-                }
-                else{
+                } else {
                     let user_payload = {
-                        id:user._id,
-                        name:user.name,
+                        id: user._id,
+                        name: user.name,
                         nbFollowers: user.followers.length,
-                        oviv_currency:user.oviv_currency,
+                        oviv_currency: user.oviv_currency,
                         description: user.description,
-                        isVerified:user.isVerified,
+                        isVerified: user.isVerified,
                     }
                     img = user.gallery.images.find(img => img.isProfilePic)
 
                     notficationsNotSeen = user.notification_list.filter(notification => !notification.is_seen)
-                    if(img){
+                    if (img) {
 
                         const base64data = Buffer.from(img.data).toString('base64');
                         user_payload.profilePic = base64data
                     }
-                    if(notficationsNotSeen){
+                    if (notficationsNotSeen) {
 
                         user_payload.nb_new_notifications = notficationsNotSeen.length
                     }
-                    let discss = await  Discussion.find({partners: user._id }).exec();
-                   let msgnotSeenCount = 0
+                    let discss = await Discussion.find({
+                        partners: user._id
+                    }).exec();
+                    let msgnotSeenCount = 0
                     discss.forEach(dis => {
-                        msgs = dis.message.filter(msg =>{ (msg.sender != user._id) && (!msg.is_seen)})
-                        msgnotSeenCount+=msgs.length;
+                        msgs = dis.message.filter(msg => {
+                            (msg.sender != user._id) && (!msg.is_seen)
+                        })
+                        msgnotSeenCount += msgs.length;
                     });
                     user_payload.nb_new_mseesages = msgnotSeenCount
                     res.json({
@@ -291,8 +316,8 @@ router.post("/google",async(req,res)=>{
                         token: "Bearer " + token,
                         user_payload
                     });
-                    }
-            });    
+                }
+            });
         }).catch((err) => {
             res.json({
                 code: STATUES.NOT_VALID,
@@ -300,7 +325,7 @@ router.post("/google",async(req,res)=>{
             });
         });
     }
-   
+
 
 })
 
@@ -334,13 +359,15 @@ router.get('/auth/google/callback', passport.authenticate('google', {
     });
 })*/
 
-router.get("/facebook", passport.authenticate('facebook',{scope: 'email'}))
+router.get("/facebook", passport.authenticate('facebook', {
+    scope: 'email'
+}))
 
-router.get("/auth/facebook/callback", passport.authenticate('facebook',{
+router.get("/auth/facebook/callback", passport.authenticate('facebook', {
     failureRedirect: '/',
     scope: 'email',
     session: false
-}),(req, res)=>{
+}), (req, res) => {
     const payload = {
         id: req.user.id
     };

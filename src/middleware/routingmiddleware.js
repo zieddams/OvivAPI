@@ -5,9 +5,8 @@ module.exports.setLocation = (req, res, next) => {
     ip = get_ip(req);
     geo = geoip.lookup(ip.clientIp);
     if (geo) {
-        req.ip = ip.clientIp,
-        req.country = geo.country
+            req.ip = ip.clientIp,
+            req.country = geo.country
     }
-
     next();
 }
