@@ -10,7 +10,7 @@ module.exports.setLocation = (req, res, next) => {
             req.ip = ip.clientIp,
             req.country_code = geo.country
             req.country = lookup.byIso(geo.country)
-            console.log(` IP : ${ip.clientIp} . Country code : ${geo.country} . Country ! ${req.country}`)
+            console.log(` IP : ${ip.clientIp} . Country code : ${geo.country} . Country ! ${req.country.country}`)
     }
     next();
 }
