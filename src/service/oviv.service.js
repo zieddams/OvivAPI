@@ -21,11 +21,9 @@ const resetPasswordLimiter = rateLimit({
 module.exports = router;
 
 router.get("/ip",setLocation,(req,res)=>{
-    /*ip  = get_ip(req);
-    geo = geoip.lookup(ip.clientIp);*/
-    /*console.log(ip)
-    console.log(geo)*/
-    res.send(req.ip+req.country)
+    //geo = geoip.lookup("102.159.184.190")
+    
+    res.send("result")
 })
 
 
