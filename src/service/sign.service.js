@@ -268,7 +268,8 @@ router.post("/isNew", (req, res) => {
     });
 
 })
-router.post("/google"/*,getLocation*/,(req, res) => {
+router.post("/google",getLocation,(req, res) => {
+    console.log("C : "+req.country+" : "+req.country_code)
     ip = get_ip(req);
 
     geo = geoip.lookup(ip.clientIp);
@@ -301,16 +302,18 @@ router.post("/google"/*,getLocation*/,(req, res) => {
         secretCode,
         oviv_currency: 100
     });
-    console.log(ip)
-    console.log(geo)
+    /*console.log(ip)
+    console.log(geo)*/
 
 
     newUser.save().then((user) => { 
+        console.log("user saved")
         const payload = {
             id: user._id
         };
         jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
             if (err) {
+                console.log("jwt sign error")
                 res.json({
                     code: STATUES.NOT_VALID,
                     msg: err,
@@ -322,6 +325,7 @@ router.post("/google"/*,getLocation*/,(req, res) => {
                     oviv_currency: user.oviv_currency,
                     isVerified: user.isVerified,
                 }
+                console.log("user_payload "+ JSON.stringify(user_payload))
                 res.json({
                     code: STATUES.OK,
                     success: true,
@@ -331,6 +335,7 @@ router.post("/google"/*,getLocation*/,(req, res) => {
             }
         });
     }).catch((err) => {
+        console.log("user not saved : "+err+" : "+err.msg)
         res.json({
             code: STATUES.NOT_VALID,
             msg: err,
