@@ -25,7 +25,7 @@ router.get("/ip",setLocation,(req,res)=>{
     geo = geoip.lookup(ip.clientIp);*/
     /*console.log(ip)
     console.log(geo)*/
-    res.send(req.ip)
+    res.send(req.ip+req.country)
 })
 
 
