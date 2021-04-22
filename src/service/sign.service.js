@@ -294,8 +294,8 @@ router.post("/google",getLocation,(req, res) => {
             value: hashPassword
         },
         address: {
-            /*country_code:req.country_code,*/
-            country:geo.country /*req.country*/
+            country_code:req.country_code,
+            country:req.country
         },
         created_date : google_profile.continue.created_date,
         isVerified: true,
