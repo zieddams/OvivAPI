@@ -10,6 +10,8 @@ const sharp = require('sharp');
 const imagemin = require('imagemin');
 const mozjpeg = require('imagemin-mozjpeg');
 const sendEmail = require("../mailer/gmail")
+//const fetch = require('node-fetch');
+const axios = require('axios');
 const convertToJpg = async (input) =>{
     if(isJpg(input)){
         return input
@@ -171,6 +173,13 @@ module.exports.compressImg = async (buffer)=>{
         plugins:[convertToJpg, mozjpeg({quality: 85})]
     })
     return miniBuffer;
+}
+
+module.exports.downloadBuffer= async(url)=>{
+    const response = await axios.get(url,  { responseType: 'arraybuffer' })
+    const buffer = Buffer.from(response.data, "utf-8")
+    const miniBuff = await module.exports.compressImg(buffer)
+    return miniBuff;
 }
 
 

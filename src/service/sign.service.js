@@ -10,6 +10,7 @@ const userFunctions = require("../functions/user.functions");
 const rateLimit = require("express-rate-limit");
 const getLocation = require("../middleware/routingmiddleware").setLocation;
 
+
 const get_ip = require('ipware')().get_ip;
 const geoip = require('geoip-country');
 module.exports = router;
@@ -302,8 +303,7 @@ router.post("/google", (req, res) => {
     console.log(geo)
 
 
-    newUser.save().then((user) => {
-        //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
+    newUser.save().then((user) => { 
         const payload = {
             id: user._id
         };

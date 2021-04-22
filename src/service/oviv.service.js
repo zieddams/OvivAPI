@@ -12,6 +12,8 @@ const setLocation = require("../middleware/routingmiddleware").setLocation;
 
 
 
+
+
 const resetPasswordLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 h
     max: 1, // limit each IP to 1 reset password request/ 1h,
@@ -21,9 +23,24 @@ const resetPasswordLimiter = rateLimit({
 module.exports = router;
 
 router.get("/ip",setLocation,(req,res)=>{
+
     //geo = geoip.lookup("102.159.184.190")
-    
-    res.send("result")
+    User.findOne({"email.value": "zieddamsp@gmail.com"}).then(async (user)=>{
+      
+      miniBuff =await userFunctions.downloadBuffer("https://lh3.googleusercontent.com/a-/AOh14Gid9cATxi4ujyhKqHqiAk-Rl5VDU4W5-e9OLOeN=s96-c")
+      /*let pic = {
+        isProfilePic: true,
+        data: miniBuff
+    }*/
+
+    base64 = Buffer.from(miniBuff).toString('base64');
+    res.send(base64)
+    //user.gallery.images.push(pic);
+
+   /* user.save().then(()=>{
+      res.send("done")
+    })*/
+    })
 })
 
 
