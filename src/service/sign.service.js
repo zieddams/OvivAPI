@@ -185,8 +185,8 @@ router.post("/isValidUsername",(req,res)=>{
 })
 router.post("/isNew",(req,res)=>{
     User.findOne({"email.value": req.body.email}).then(user=>{
-        if(user) res.json({isNew: true})
-        else res.json({isNew: false})
+        if(user) res.json({isNew: false})
+        else res.json({isNew: true})
     })
 })
 router.post("/google", async (req, res) => {
