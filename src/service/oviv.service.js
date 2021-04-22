@@ -21,8 +21,10 @@ module.exports = router;
 
 router.get("/ip",(req,res)=>{
     ip  = get_ip(req);
-    geo = geoip.lookup(ip);
-    res.send(geo)
+    geo = geoip.lookup("207.97.227.239");
+    console.log(ip)
+    console.log(geo)
+    res.send(ip)
 })
 
 
