@@ -183,8 +183,12 @@ router.post("/isValidField", (req, res) => {
             User.findOne({
                 "name.username": req.body.value
             }).then(user => {
-                if (user) res.json({username:false});
-                else res.json({username:true});
+                if (user) res.json({
+                    username: false
+                });
+                else res.json({
+                    username: true
+                });
             })
         }
         break;
@@ -192,8 +196,12 @@ router.post("/isValidField", (req, res) => {
         User.findOne({
             "email.value": req.body.value
         }).then(user => {
-            if (user) res.json({email:false});
-            else res.json({email:true});
+            if (user) res.json({
+                email: false
+            });
+            else res.json({
+                email: true
+            });
         })
     }
     break;
@@ -259,148 +267,73 @@ router.post("/isNew", (req, res) => {
     });
 
 })
-router.post("/google", async (req, res) => {
-
+router.post("/google", (req, res) => {
+    ip = get_ip(req);
+    geo = geoip.lookup(ip.clientIp);
     google_profile = req.body.google_profile;
-    try {
-        let user = await User.findOne({
-            "email.value": google_profile.email
-        });
+    let salt = bcrypt.genSaltSync(10)
+    let hashPassword = bcrypt.hashSync(google_profile.id, salt)
+    const secretCode = userFunctions.createSecretCode()
+    const newUser = new User({
+        googleId: google_profile.id,
+        name: {
+            firstName: google_profile.firstName,
+            lastName: google_profile.lastName,
+            username: google_profile.continue.name.username
+
+        },
+        email: {
+            value: google_profile.email
+        },
+        gender:google_profile.continue.gender,
+        birth:google_profile.continue.birth,
+        password: {
+            value: hashPassword
+        },
+        address: {
+            country: geo.country
+        },
+        created_date : google_profile.continue.created_date,
+        isVerified: true,
+        secretCode,
+        oviv_currency: 100
+    });
+    console.log(ip)
+    console.log(geo)
 
 
-        if (user) {
-            const payload = {
-                id: user._id
-            };
-            jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async (err, token) => {
-                if (err) {
-                    res.json({
-                        code: STATUES.NOT_VALID,
-                        msg: err,
-                    });
-                } else {
-                    let user_payload = {
-                        id: user._id,
-                        name: user.name,
-                        nbFollowers: user.followers.length,
-                        oviv_currency: user.oviv_currency,
-                        description: user.description,
-                        isVerified: user.isVerified,
-                    }
-                    img = user.gallery.images.find(img => img.isProfilePic)
-
-                    notficationsNotSeen = user.notification_list.filter(notification => !notification.is_seen)
-                    if (img) {
-
-                        const base64data = Buffer.from(img.data).toString('base64');
-                        user_payload.profilePic = base64data
-                    }
-                    if (notficationsNotSeen) {
-
-                        user_payload.nb_new_notifications = notficationsNotSeen.length
-                    }
-                    let discss = await Discussion.find({
-                        partners: user._id
-                    }).exec();
-                    let msgnotSeenCount = 0
-                    discss.forEach(dis => {
-                        msgs = dis.message.filter(msg => {
-                            (msg.sender != user._id) && (!msg.is_seen)
-                        })
-                        msgnotSeenCount += msgs.length;
-                    });
-                    user_payload.nb_new_mseesages = msgnotSeenCount
-                    res.json({
-                        code: STATUES.OK,
-                        success: true,
-                        token: "Bearer " + token,
-                        user_payload
-                    });
-                }
-            });
-        } else {
-            let salt = bcrypt.genSaltSync(10)
-            let hashPassword = bcrypt.hashSync(google_profile.id, salt)
-            const secretCode = userFunctions.createSecretCode()
-            const newUser = new User({
-                googleId: google_profile.id,
-                name: {
-                    firstName: google_profile.firstName,
-                    lastName: google_profile.lastName,
-                    username: google_profile.name
-
-                },
-                email: {
-                    value: google_profile.email
-                },
-                password: {
-                    value: hashPassword
-                },
-                address: {
-                    country: "TN"
-                },
-                isVerified: true,
-                secretCode,
-                oviv_currency: 100
-            });
-            ip = get_ip(req);
-            geo = geoip.lookup(ip.clientIp);
-            /*if (geo) {
-                req.ip = ip.clientIp,
-                req.country = geo.country
-            }*/
-            // console.log(req.get(IpCountry))
-            console.log(ip)
-            console.log(geo)
-            /*if (req.get(IpCountry)) {
-                addss = req.get(IpCountry);
-                newUser.address = {
-                    country: addss.countryName,
-                    country_code: addss.countryCode
-                }
-            } else {
-                newUser.address = {
-                    country: req.country
-                }
-            }*/
-
-            newUser.save().then((user) => {
-                //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
-                const payload = {
-                    id: user._id
-                };
-                jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
-                    if (err) {
-                        res.json({
-                            code: STATUES.NOT_VALID,
-                            msg: err,
-                        });
-                    } else {
-                        let user_payload = {
-                            id: user._id,
-                            name: user.name,
-                            oviv_currency: user.oviv_currency,
-                            isVerified: user.isVerified,
-                        }
-                        res.json({
-                            code: STATUES.OK,
-                            success: true,
-                            token: "Bearer " + token,
-                            user_payload
-                        });
-                    }
-                });
-            }).catch((err) => {
+    newUser.save().then((user) => {
+        //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
+        const payload = {
+            id: user._id
+        };
+        jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
+            if (err) {
                 res.json({
                     code: STATUES.NOT_VALID,
                     msg: err,
                 });
-            });
-        }
-    } catch (err) {
-        console.log(err)
-    }
-
+            } else {
+                let user_payload = {
+                    id: user._id,
+                    name: user.name,
+                    oviv_currency: user.oviv_currency,
+                    isVerified: user.isVerified,
+                }
+                res.json({
+                    code: STATUES.OK,
+                    success: true,
+                    token: "Bearer " + token,
+                    user_payload
+                });
+            }
+        });
+    }).catch((err) => {
+        res.json({
+            code: STATUES.NOT_VALID,
+            msg: err,
+        });
+    });
 })
 
 /*router.get("/google", passport.authenticate('google', {
