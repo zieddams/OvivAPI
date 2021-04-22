@@ -178,23 +178,25 @@ router.post("/in", loginLimiter, (req, res) => {
 });
 
 router.post("/isValidField", (req, res) => {
-    switch(req.body.label){
+    switch (req.body.label) {
         case "username": {
             User.findOne({
                 "name.username": req.body.value
             }).then(user => {
-                if (user) res.send("this username exist already");
-                else res.send("this username is valid");
+                if (user) res.json({username:false});
+                else res.json({username:true});
             })
-        }break;
-        case "email":{
-            User.findOne({
-                "email.value": req.body.value
-            }).then(user => {
-                if (user) res.send("this email exist already");
-                else res.send("this email is valid");
-            })
-        } break;
+        }
+        break;
+    case "email": {
+        User.findOne({
+            "email.value": req.body.value
+        }).then(user => {
+            if (user) res.json({email:false});
+            else res.json({email:true});
+        })
+    }
+    break;
     }
 })
 router.post("/isNew", (req, res) => {
