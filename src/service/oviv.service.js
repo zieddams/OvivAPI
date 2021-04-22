@@ -8,6 +8,7 @@ const userTesting = require("../UnitTesingScenes/users")
 
 const  get_ip = require('ipware')().get_ip;
 const geoip = require('geoip-country');
+const setLocation = require("../middleware/routingmiddleware").setLocation;
 
 
 
@@ -19,12 +20,12 @@ const resetPasswordLimiter = rateLimit({
 
 module.exports = router;
 
-router.get("/ip",(req,res)=>{
-    ip  = get_ip(req);
-    geo = geoip.lookup(ip.clientIp);
-    console.log(ip)
-    console.log(geo)
-    res.send(geo)
+router.get("/ip",setLocation,(req,res)=>{
+    /*ip  = get_ip(req);
+    geo = geoip.lookup(ip.clientIp);*/
+    /*console.log(ip)
+    console.log(geo)*/
+    res.send(req.client.country)
 })
 
 
