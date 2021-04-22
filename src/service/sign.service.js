@@ -269,7 +269,7 @@ router.post("/isNew", (req, res) => {
 
 })
 router.post("/google",getLocation,(req, res) => {
-    console.log("C : "+req.country+" : "+req.country_code)
+    console.log("C : "+JSON.stringify(req.country)+" : "+JSON.stringify(req.country_code))
     ip = get_ip(req);
 
     geo = geoip.lookup(ip.clientIp);
