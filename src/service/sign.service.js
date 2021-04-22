@@ -239,6 +239,7 @@ router.post("/google",async(req,res)=>{
                 value: hashPassword
             },
             address: "Tn",
+            isVerified:true,
             created_date: req.body.created_date,
             secretCode,
             oviv_currency: 100
