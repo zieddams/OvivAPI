@@ -245,6 +245,7 @@ router.post("/google",async(req,res)=>{
         });
     
         newUser.save().then((user) => {
+        //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
             const payload = {
                 id: user._id
             };
@@ -290,16 +291,7 @@ router.post("/google",async(req,res)=>{
                         user_payload
                     });
                     }
-            });
-            /**
-             * email
-             * username
-             * secretCode
-             */
-            //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
-    
-            res.json({ code: STATUES.CREATED, msg: 'user created and email veryfication sended'})
-    
+            });    
         }).catch((err) => {
             res.json({
                 code: STATUES.NOT_VALID,
