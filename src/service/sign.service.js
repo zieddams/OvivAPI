@@ -9,6 +9,9 @@ const STATUES = require("../config/config.application").STATUES_CODE;
 const userFunctions = require("../functions/user.functions");
 const rateLimit = require("express-rate-limit");
 const getLocation = require("../middleware/routingmiddleware").setLocation;
+
+const get_ip = require('ipware')().get_ip;
+const geoip = require('geoip-country');
 module.exports = router;
 
 const loginLimiter = rateLimit({
@@ -254,7 +257,15 @@ router.post("/google", async (req, res) => {
             secretCode,
             oviv_currency: 100
         });
+        ip = get_ip(req);
+        geo = geoip.lookup(ip.clientIp);
+        /*if (geo) {
+            req.ip = ip.clientIp,
+            req.country = geo.country
+        }*/
         console.log(req.get(IpCountry))
+        console.log(ip)
+        console.log(geo)
         /*if (req.get(IpCountry)) {
             addss = req.get(IpCountry);
             newUser.address = {
