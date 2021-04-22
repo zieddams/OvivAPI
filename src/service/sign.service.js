@@ -174,7 +174,7 @@ router.post("/in", loginLimiter, (req, res) => {
     });
 });
 
-router.post("/google",/* getLocation,*/ async (req, res) => {
+router.post("/google", async (req, res) => {
 
     google_profile = req.body.google_profile;
 
@@ -251,10 +251,10 @@ router.post("/google",/* getLocation,*/ async (req, res) => {
             },
             address:{country:"TN"},
             isVerified: true,
-            created_date: req.body.created_date,
             secretCode,
             oviv_currency: 100
         });
+        console.log(req.get(IpCountry))
         /*if (req.get(IpCountry)) {
             addss = req.get(IpCountry);
             newUser.address = {
@@ -287,6 +287,7 @@ router.post("/google",/* getLocation,*/ async (req, res) => {
                         description: user.description,
                         isVerified: user.isVerified,
                     }
+                    /*
                     img = user.gallery.images.find(img => img.isProfilePic)
 
                     notficationsNotSeen = user.notification_list.filter(notification => !notification.is_seen)
@@ -309,7 +310,7 @@ router.post("/google",/* getLocation,*/ async (req, res) => {
                         })
                         msgnotSeenCount += msgs.length;
                     });
-                    user_payload.nb_new_mseesages = msgnotSeenCount
+                    user_payload.nb_new_mseesages = msgnotSeenCount*/
                     res.json({
                         code: STATUES.OK,
                         success: true,
