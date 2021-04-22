@@ -177,6 +177,12 @@ router.post("/in", loginLimiter, (req, res) => {
     });
 });
 
+router.post("/isValidUsername",(req,res)=>{
+    User.findOne({"name.username":req.body.username}).then(user=>{
+        if(user)res.send("this username exist already");
+        else res.send("this username is valid");
+    })
+})
 router.post("/isNew",(req,res)=>{
     User.findOne({"email.value": req.body.email}).then(user=>{
         if(user) res.json({isNew: true})
