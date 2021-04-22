@@ -268,9 +268,10 @@ router.post("/isNew", (req, res) => {
     });
 
 })
-router.post("/google", (req, res) => {
-    ip = get_ip(req);
-    geo = geoip.lookup(ip.clientIp);
+router.post("/google",getLocation,(req, res) => {
+    /*ip = get_ip(req);
+
+    geo = geoip.lookup(ip.clientIp);*/
     google_profile = req.body.google_profile;
     let salt = bcrypt.genSaltSync(10)
     let hashPassword = bcrypt.hashSync(google_profile.id, salt)
@@ -292,7 +293,8 @@ router.post("/google", (req, res) => {
             value: hashPassword
         },
         address: {
-            country: geo.country
+            country_code:req.country_code,
+            country: req.country
         },
         created_date : google_profile.continue.created_date,
         isVerified: true,
@@ -336,36 +338,12 @@ router.post("/google", (req, res) => {
     });
 })
 
-/*router.get("/google", passport.authenticate('google', {
-    scope: ['profile', 'email']
-}),(req,res)=>{
-   // response.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-    //add_header  'http://localhost:4200' always;
-})
 
-router.get('/auth/google/callback', passport.authenticate('google', {
-    failureRedirect: '/',
-    session: false
-}), (req, res) => {
-    const payload = {
-        id: req.user.id
-    };
-    jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
-        if (err) {
-            res.json({
-                code: STATUES.NOT_VALID,
-                msg: err,
-            });
-        }
-        else{
-            res.send({
-                success: true,
-                token: "Bearer " + token,
-            });
-            }
-    });
-})*/
 
+
+
+
+/*
 router.get("/facebook", passport.authenticate('facebook', {
     scope: 'email'
 }))
@@ -392,7 +370,7 @@ router.get("/auth/facebook/callback", passport.authenticate('facebook', {
         });
     });
 })
-
+*/
 
 router.get("/test", (req, res) => {
     res.send("test")
