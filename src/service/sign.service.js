@@ -177,17 +177,73 @@ router.post("/in", loginLimiter, (req, res) => {
     });
 });
 
-router.post("/isValidUsername",(req,res)=>{
-    User.findOne({"name.username":req.body.username}).then(user=>{
-        if(user)res.send("this username exist already");
+router.post("/isValidUsername", (req, res) => {
+    User.findOne({
+        "name.username": req.body.username
+    }).then(user => {
+        if (user) res.send("this username exist already");
         else res.send("this username is valid");
     })
 })
-router.post("/isNew",(req,res)=>{
-    User.findOne({"email.value": req.body.email}).then(user=>{
-        if(user) res.json({isNew: false})
-        else res.json({isNew: true})
-    })
+router.post("/isNew", (req, res) => {
+    User.findOne({
+        "email.value": req.body.email
+    }).then(user => {
+        if (user) {
+            const payload = {
+                id: user._id
+            };
+            jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async (err, token) => {
+                if (err) {
+                    res.json({
+                        code: STATUES.NOT_VALID,
+                        msg: err,
+                    });
+                }
+                let user_payload = {
+                    id: user._id,
+                    name: user.name,
+                    nbFollowers: user.followers.length,
+                    oviv_currency: user.oviv_currency,
+                    description: user.description,
+                    isVerified: user.isVerified,
+                }
+                img = user.gallery.images.find(img => img.isProfilePic)
+
+                notficationsNotSeen = user.notification_list.filter(notification => !notification.is_seen)
+                if (img) {
+
+                    const base64data = Buffer.from(img.data).toString('base64');
+                    user_payload.profilePic = base64data
+                }
+                if (notficationsNotSeen) {
+
+                    user_payload.nb_new_notifications = notficationsNotSeen.length
+                }
+                let discss = await Discussion.find({
+                    partners: user._id
+                }).exec();
+                let msgnotSeenCount = 0
+                discss.forEach(dis => {
+                    msgs = dis.message.filter(msg => {
+                        (msg.sender != user._id) && (!msg.is_seen)
+                    })
+                    msgnotSeenCount += msgs.length;
+                });
+                user_payload.nb_new_mseesages = msgnotSeenCount
+                res.json({
+                    isNew: false,
+                    code: STATUES.OK,
+                    success: true,
+                    token: "Bearer " + token,
+                    user_payload
+                });
+            })
+        } else res.json({
+            isNew: true
+        })
+    });
+
 })
 router.post("/google", async (req, res) => {
 
@@ -279,7 +335,7 @@ router.post("/google", async (req, res) => {
                 req.ip = ip.clientIp,
                 req.country = geo.country
             }*/
-           // console.log(req.get(IpCountry))
+            // console.log(req.get(IpCountry))
             console.log(ip)
             console.log(geo)
             /*if (req.get(IpCountry)) {
