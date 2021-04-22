@@ -267,7 +267,7 @@ router.post("/google", async (req, res) => {
                 req.ip = ip.clientIp,
                 req.country = geo.country
             }*/
-            console.log(req.get(IpCountry))
+           // console.log(req.get(IpCountry))
             console.log(ip)
             console.log(geo)
             /*if (req.get(IpCountry)) {
