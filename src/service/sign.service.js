@@ -174,7 +174,7 @@ router.post("/in", loginLimiter, (req, res) => {
     });
 });
 
-router.post("/google", getLocation, async (req, res) => {
+router.post("/google",/* getLocation,*/ async (req, res) => {
 
     google_profile = req.body.google_profile;
 
@@ -249,13 +249,13 @@ router.post("/google", getLocation, async (req, res) => {
             password: {
                 value: hashPassword
             },
-
+            address:{country:"TN"},
             isVerified: true,
             created_date: req.body.created_date,
             secretCode,
             oviv_currency: 100
         });
-        if (req.get(IpCountry)) {
+        /*if (req.get(IpCountry)) {
             addss = req.get(IpCountry);
             newUser.address = {
                 country: addss.countryName,
@@ -265,7 +265,7 @@ router.post("/google", getLocation, async (req, res) => {
             newUser.address = {
                 country: req.country
             }
-        }
+        }*/
 
         newUser.save().then((user) => {
             //userFunctions.SendVerifyEmail(user._id,req.body.email.value,req.body.name.username,secretCode);
