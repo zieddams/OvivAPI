@@ -177,6 +177,12 @@ router.post("/in", loginLimiter, (req, res) => {
     });
 });
 
+router.post("/isNew",(req,res)=>{
+    User.findOne({"email.value": req.body.email}).then(user=>{
+        if(user) res.json({isNew: true})
+        else res.json({isNew: false})
+    })
+})
 router.post("/google", async (req, res) => {
 
     google_profile = req.body.google_profile;
