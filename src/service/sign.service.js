@@ -260,35 +260,11 @@ router.post("/isNew", (req, res) => {
                 });
             })
         } else {
-            let adder = 0;
-            let f_username = profile.firstName + profile.lastName
-            let user = await User.findOne({
-                "name.username": f_username
+            suggestUsername = userFunctions.getSuggestUsername(profile);
+            res.json({
+                isNew:true,
+                suggestUsername
             })
-            if (user) {
-                let foundValidUsername = false;
-                while (!foundValidUsername) {
-                    adder++
-                    let t_username = f_username + adder
-                    let user = await User.findOne({
-                        "name.username": t_username
-                    })
-                    if (!user) {
-                        f_username = t_username
-                        foundValidUsername = true
-                    }
-                }
-                res.json({
-                    isNew: true,
-                    suggestUsername: f_username
-                })
-
-            } else {
-                res.json({
-                    isNew: true,
-                    suggestUsername: f_username
-                })
-            }
         }
     }).catch(err=>{
         res.json({

@@ -12,8 +12,8 @@ const mozjpeg = require('imagemin-mozjpeg');
 const sendEmail = require("../mailer/gmail")
 //const fetch = require('node-fetch');
 const axios = require('axios');
-const convertToJpg = async (input) =>{
-    if(isJpg(input)){
+const convertToJpg = async (input) => {
+    if (isJpg(input)) {
         return input
     }
     return sharp(input).jpeg().toBuffer();
@@ -50,77 +50,107 @@ module.exports.createSecretCode = () => {
         numbers: true
     });
 }
-module.exports.SendVerifyEmail = (id,email,username,secretCode) => {
+module.exports.SendVerifyEmail = (id, email, username, secretCode) => {
 
-    const {html , text} = emailBody.verifAccountEmailBody(id,username,secretCode)
-    sendEmail.sendGmail(email,emailSubject.VERIFY_ACCOUNT,text,html).then(()=>{
+    const {
+        html,
+        text
+    } = emailBody.verifAccountEmailBody(id, username, secretCode)
+    sendEmail.sendGmail(email, emailSubject.VERIFY_ACCOUNT, text, html).then(() => {
         //console.log("email is send", result)
     }).catch(error => console.log(error.message));
 }
-module.exports.SendNewPasswordEmail = (email,newPassword)=>{
-    const {html , text} = emailBody.resetPasswordEmailBody(newPassword)
-    sendEmail.sendGmail(email,emailSubject.RESET_PASSWORD,text,html).then(()=>{
+module.exports.SendNewPasswordEmail = (email, newPassword) => {
+    const {
+        html,
+        text
+    } = emailBody.resetPasswordEmailBody(newPassword)
+    sendEmail.sendGmail(email, emailSubject.RESET_PASSWORD, text, html).then(() => {
         //console.log("email is send", result)
     }).catch(error => console.log(error.message));
 }
-module.exports.updateInterests = (situation,result,bodyInterests,req,res) =>{
-    if(situation){
-        User.findOneAndUpdate({_id:req.user.id},{$push:{interests: {$each: result}}}).then(user=>{
-            res.send(user)
-        }).catch(err=>{
-            res.send(err)
-        })
-    }else{
-
-       if(result.result.nInserted !=0){
-           console.log("(result.result.nInserted =>",result.result.nInserted)
-        User.findOneAndUpdate({_id:req.user.id},{$push:{interests: {$each: result.insertedDocs}}}).then(user=>{
-            if(result.writeErrors.length>0){
-                let newInterArray = [];
-                result.writeErrors.forEach(element => {
-                    newInterArray.push(bodyInterests[element.index])
-                });
-                User.findOneAndUpdate({_id:req.user.id},{$push:{interests: {$each: newInterArray}}}).then(user=>{
-            
-                }).catch(err=>{
-                    res.send(err)
-                })
+module.exports.updateInterests = (situation, result, bodyInterests, req, res) => {
+    if (situation) {
+        User.findOneAndUpdate({
+            _id: req.user.id
+        }, {
+            $push: {
+                interests: {
+                    $each: result
+                }
             }
-        }).catch(err=>{
+        }).then(user => {
+            res.send(user)
+        }).catch(err => {
             res.send(err)
         })
-       }
+    } else {
+
+        if (result.result.nInserted != 0) {
+            console.log("(result.result.nInserted =>", result.result.nInserted)
+            User.findOneAndUpdate({
+                _id: req.user.id
+            }, {
+                $push: {
+                    interests: {
+                        $each: result.insertedDocs
+                    }
+                }
+            }).then(user => {
+                if (result.writeErrors.length > 0) {
+                    let newInterArray = [];
+                    result.writeErrors.forEach(element => {
+                        newInterArray.push(bodyInterests[element.index])
+                    });
+                    User.findOneAndUpdate({
+                        _id: req.user.id
+                    }, {
+                        $push: {
+                            interests: {
+                                $each: newInterArray
+                            }
+                        }
+                    }).then(user => {
+
+                    }).catch(err => {
+                        res.send(err)
+                    })
+                }
+            }).catch(err => {
+                res.send(err)
+            })
+        }
     }
 }
 module.exports.setGalleryList = (userImagesList) => {
     picsArray = [];
     userImagesList.forEach(element => {
-        if(!element.isProfilePic){
+        if (!element.isProfilePic) {
             base64code = Buffer.from(element.data).toString('base64');
             imgObject = {
-                id:element._id,
-                text:element.text,
-                pic:base64code,
-                contentType:element.contentType
+                id: element._id,
+                text: element.text,
+                pic: base64code,
+                contentType: element.contentType
             }
             picsArray.push(imgObject)
         }
     });
     return picsArray;
 }
-module.exports.getPercentDataCompleted = (userPersonal) =>{
-    let props = Object.keys(Personal.schema.paths); 
-    let fields = props.filter(prop => (prop!= "user") && (prop!= "_id") && (prop!= "percentCompleted") && (prop!= "__v") )
+module.exports.getPercentDataCompleted = (userPersonal) => {
+    let props = Object.keys(Personal.schema.paths);
+    let fields = props.filter(prop => (prop != "user") && (prop != "_id") && (prop != "percentCompleted") && (prop != "__v"))
     let cmp = 0;
-     fields.forEach(field => {
-         if(userPersonal[field]) cmp++
-     });
-     return ((cmp / fields.length) * 100) 
+    fields.forEach(field => {
+        if (userPersonal[field]) cmp++
+    });
+    return ((cmp / fields.length) * 100)
 }
-module.exports.isValidCommentBody = (text) =>{
-   let regExp = new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?");
-   text = text.trim();
-   return !(regExp.test(text) || validator.isEmpty(text));
+module.exports.isValidCommentBody = (text) => {
+    let regExp = new RegExp("([a-zA-Z0-9]+://)?([a-zA-Z0-9_]+:[a-zA-Z0-9_]+@)?([a-zA-Z0-9.-]+\\.[A-Za-z]{2,4})(:[0-9]+)?(/.*)?");
+    text = text.trim();
+    return !(regExp.test(text) || validator.isEmpty(text));
 }
 module.exports.listUsersCards = (users) => {
     let cardUsers = [];
@@ -132,21 +162,21 @@ module.exports.listUsersCards = (users) => {
             nbFollowers: user.followers.length
         }
         img = user.gallery.images.find(img => img.isProfilePic);
-        if(img){
+        if (img) {
             base64code = Buffer.from(img.data).toString('base64');
             userCardData.profilePic = base64code
         }
-        
+
         cardUsers.push(userCardData)
-    }) 
+    })
     return cardUsers;
 }
-module.exports.CreatSearchQuery = async(filter) => {
+module.exports.CreatSearchQuery = async (filter) => {
     let query = {};
     let cardUsers = [];
     const keys = Object.keys(filter)
     keys.forEach(key => {
-        if(key == "country") query["address.country"] = filter[key]
+        if (key == "country") query["address.country"] = filter[key]
         else query[key] = filter[key]
     });
     const users = await User.find(query);
@@ -159,33 +189,61 @@ module.exports.CreatSearchQuery = async(filter) => {
             nbFollowers: user.followers.length
         }
         img = user.gallery.images.find(img => img.isProfilePic);
-        if(img){
+        if (img) {
             base64code = Buffer.from(img.data).toString('base64');
             userCardData.profilePic = base64code
         }
-        
+
         cardUsers.push(userCardData)
-    }) 
+    })
     return cardUsers;
 }
-module.exports.compressImg = async (buffer)=>{
-    const miniBuffer = await imagemin.buffer(buffer,{
-        plugins:[convertToJpg, mozjpeg({quality: 85})]
+module.exports.compressImg = async (buffer) => {
+    const miniBuffer = await imagemin.buffer(buffer, {
+        plugins: [convertToJpg, mozjpeg({
+            quality: 85
+        })]
     })
     return miniBuffer;
 }
-module.exports.downloadBuffer= async(url)=>{
-    const response = await axios.get(url,  { responseType: 'arraybuffer' })
+module.exports.downloadBuffer = async (url) => {
+    const response = await axios.get(url, {
+        responseType: 'arraybuffer'
+    })
     const buffer = Buffer.from(response.data, "utf-8")
     const miniBuff = await module.exports.compressImg(buffer)
     return miniBuff;
 }
 
+module.exports.getSuggestUsername = async (profile) => {
+    let adder = 0;
+    let f_username = profile.firstName + profile.lastName
+    let user = await User.findOne({
+        "name.username": f_username
+    })
+    if (user) {
+        let foundValidUsername = false;
+        while (!foundValidUsername) {
+            adder++
+            let t_username = f_username + adder
+            let user = await User.findOne({
+                "name.username": t_username
+            })
+            if (!user) {
+                f_username = t_username
+                foundValidUsername = true
+            }
+        }
+        return f_username;
 
-module.exports.getCommenFollowersLVL1=(myFoolwingList,targetFollowingList)=>{
-    
-    myFoolwingList = ["123","265","789","523","438"]
-    targetFollowingList = ["123","265","700","500","438"]
+    } else return f_username;
+
+
+}
+module.exports.getCommenFollowersLVL1 = (myFoolwingList, targetFollowingList) => {
+
+    myFoolwingList = ["123", "265", "789", "523", "438"]
+    targetFollowingList = ["123", "265", "700", "500", "438"]
     const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
 
 
@@ -194,32 +252,44 @@ module.exports.getCommenFollowersLVL1=(myFoolwingList,targetFollowingList)=>{
 
 }
 
-module.exports.getCommenFollowersLVL2= async(myCountry,myFoolwingList,targetFollowingList)=>{
-    
-    myFoolwingList = ["123","265","789","523","438"]
-    targetFollowingList = ["123","265","700","500","438"]
+module.exports.getCommenFollowersLVL2 = async (myCountry, myFoolwingList, targetFollowingList) => {
+
+    myFoolwingList = ["123", "265", "789", "523", "438"]
+    targetFollowingList = ["123", "265", "700", "500", "438"]
     const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
 
-    let users = await User.find({ '_id': { $in: commenFollowers }},{'address.country':myCountry} ).exec();
+    let users = await User.find({
+        '_id': {
+            $in: commenFollowers
+        }
+    }, {
+        'address.country': myCountry
+    }).exec();
     let returnIds = []
     users.forEach(user => {
         returnIds.push(user._id);
     });
     return returnIds
 }
-module.exports.getCommenFollowersLVL3= async(myinteress,myCountry,myFoolwingList,targetFollowingList)=>{
-    
-    myFoolwingList = ["123","265","789","523","438"]
-    targetFollowingList = ["123","265","700","500","438"]
+module.exports.getCommenFollowersLVL3 = async (myinteress, myCountry, myFoolwingList, targetFollowingList) => {
+
+    myFoolwingList = ["123", "265", "789", "523", "438"]
+    targetFollowingList = ["123", "265", "700", "500", "438"]
     const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
-    let users = await User.find({ '_id': { $in: commenFollowers }},{'address.country':myCountry},{'interests': { $in: myinteress }} ).exec();
+    let users = await User.find({
+        '_id': {
+            $in: commenFollowers
+        }
+    }, {
+        'address.country': myCountry
+    }, {
+        'interests': {
+            $in: myinteress
+        }
+    }).exec();
     let returnIds = []
     users.forEach(user => {
         returnIds.push(user._id);
     });
     return returnIds
 }
-
-
-
-
