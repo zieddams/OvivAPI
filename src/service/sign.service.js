@@ -205,9 +205,10 @@ router.post("/isValidField", (req, res) => {
     }
 })
 router.post("/isNew", (req, res) => {
+    const profile = req.body.profile
     User.findOne({
-        "email.value": req.body.email
-    }).then(user => {
+        "email.value": profile.email
+    }).then(async (user) => {
         if (user) {
             const payload = {
                 id: user._id
@@ -258,17 +259,46 @@ router.post("/isNew", (req, res) => {
                     user_payload
                 });
             })
-        } else res.json({
-            isNew: true,
-            /**
-             * 
-             * seggusername : value
-             */
-        })
+        } else {
+            let adder = 0;
+            let f_username = profile.firstName + profile.lastName
+            let user = await User.findOne({
+                "name.username": f_username
+            })
+            if (user) {
+                let foundValidUsername = false;
+                while (!foundValidUsername) {
+                    adder++
+                    let t_username = f_username + adder
+                    let user = await User.findOne({
+                        "name.username": t_username
+                    })
+                    if (!user) {
+                        f_username = t_username
+                        foundValidUsername = true
+                    }
+                }
+                res.json({
+                    isNew: true,
+                    suggestUsername: f_username
+                })
+
+            } else {
+                res.json({
+                    isNew: true,
+                    suggestUsername: f_username
+                })
+            }
+        }
+    }).catch(err=>{
+        res.json({
+            code: STATUES.NOT_VALID,
+            msg: err,
+        });
     });
 
 })
-router.post("/google",getLocation,async(req, res) => {
+router.post("/google", getLocation, async (req, res) => {
 
     google_profile = req.body.google_profile;
     const miniBuffer = await userFunctions.downloadBuffer(google_profile.photoUrl)
@@ -277,7 +307,7 @@ router.post("/google",getLocation,async(req, res) => {
         isProfilePic: true,
         data: miniBuffer,
         update: google_profile.continue.created_date
-    }            
+    }
     let salt = bcrypt.genSaltSync(10)
     let hashPassword = bcrypt.hashSync(google_profile.id, salt)
     const secretCode = userFunctions.createSecretCode()
@@ -292,22 +322,24 @@ router.post("/google",getLocation,async(req, res) => {
         email: {
             value: google_profile.email
         },
-        gender:google_profile.continue.gender,
-        birth:google_profile.continue.birth,
+        gender: google_profile.continue.gender,
+        birth: google_profile.continue.birth,
         password: {
             value: hashPassword
         },
         address: {
-            country_code:req.country_code,
-            country:req.country
+            country_code: req.country_code,
+            country: req.country
         },
-        created_date : google_profile.continue.created_date,
+        created_date: google_profile.continue.created_date,
         isVerified: true,
         secretCode,
         oviv_currency: 100,
-        gallery:{images:[profile_pic]}
+        gallery: {
+            images: [profile_pic]
+        }
     });
-    newUser.save().then((user) => { 
+    newUser.save().then((user) => {
         const payload = {
             id: user._id
         };
@@ -323,7 +355,7 @@ router.post("/google",getLocation,async(req, res) => {
                     name: user.name,
                     oviv_currency: user.oviv_currency,
                     isVerified: user.isVerified,
-                    profilePic:base64data
+                    profilePic: base64data
                 }
                 res.json({
                     code: STATUES.OK,
@@ -375,6 +407,3 @@ router.get("/auth/facebook/callback", passport.authenticate('facebook', {
 })
 */
 
-router.get("/test", (req, res) => {
-    res.send("test")
-})

@@ -4,11 +4,6 @@ const router = express.Router();
 const userFunctions = require("../functions/user.functions");
 const STATUES = require("../config/config.application").STATUES_CODE;
 const rateLimit = require("express-rate-limit");
-const userTesting = require("../UnitTesingScenes/users")
-
-const  get_ip = require('ipware')().get_ip;
-const geoip = require('geoip-country');
-const setLocation = require("../middleware/routingmiddleware").setLocation;
 
 
 
@@ -22,32 +17,41 @@ const resetPasswordLimiter = rateLimit({
 
 module.exports = router;
 
-router.get("/ip",setLocation,(req,res)=>{
+router.get("/test",async(req,res)=>{
+  let google_profile = {
+    name: "boujemaa wahid",
+    lastName: "wahid",
+    firstName: "boujemaa",
+    email: "boujemaa.wahid.jobs@gmail.com",
+  }
 
-    //geo = geoip.lookup("102.159.184.190")
-    User.findOne({"email.value": "zieddamsp@gmail.com"}).then(async (user)=>{
-      
-      miniBuff =await userFunctions.downloadBuffer("https://lh3.googleusercontent.com/a-/AOh14Gid9cATxi4ujyhKqHqiAk-Rl5VDU4W5-e9OLOeN=s96-c")
-      /*let pic = {
-        isProfilePic: true,
-        data: miniBuff
-    }*/
+    adder = 0;
+    let f_username = google_profile.firstName+google_profile.lastName
+    let user = await User.findOne({"name.username":f_username})
+    if(user){
+      let foundValidUsername = false;
+      while(!foundValidUsername){
+        adder++
+        let t_username = f_username + adder
+        let user = await User.findOne({"name.username":t_username})
+        if(!user){
+          f_username = t_username
+          foundValidUsername = true
+        }
+      }
 
-    base64 = Buffer.from(miniBuff).toString('base64');
-    res.send(base64)
-    //user.gallery.images.push(pic);
+      res.send(`we suggest this username "${f_username}"`)
+    }
+    else {
+      res.send(`we suggest this username "${f_username}"`)
+    }
+  
+  
 
-   /* user.save().then(()=>{
-      res.send("done")
-    })*/
-    })
+
 })
 
 
-router.get("/test/createRandromUsers",(req,res)=>{
-    userTesting.createRandomUser()
-    res.send('done')
-})
 
 router.get("/", (req, res) => {
 
