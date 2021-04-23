@@ -259,7 +259,11 @@ router.post("/isNew", (req, res) => {
                 });
             })
         } else res.json({
-            isNew: true
+            isNew: true,
+            /**
+             * 
+             * seggusername : value
+             */
         })
     });
 
