@@ -267,13 +267,13 @@ router.post("/isNew", (req, res) => {
 router.post("/google",getLocation,async(req, res) => {
 
     google_profile = req.body.google_profile;
-
     const miniBuffer = await userFunctions.downloadBuffer(google_profile.photoUrl)
+    const base64data = Buffer.from(miniBuffer).toString('base64');
     let profile_pic = {
         isProfilePic: true,
         data: miniBuffer,
         update: google_profile.continue.created_date
-    }
+    }            
     let salt = bcrypt.genSaltSync(10)
     let hashPassword = bcrypt.hashSync(google_profile.id, salt)
     const secretCode = userFunctions.createSecretCode()
@@ -304,13 +304,11 @@ router.post("/google",getLocation,async(req, res) => {
         gallery:{images:[profile_pic]}
     });
     newUser.save().then((user) => { 
-        console.log("user saved")
         const payload = {
             id: user._id
         };
         jwt.sign(payload, process.env.SECRET_OR_KEY, {}, (err, token) => {
             if (err) {
-                console.log("jwt sign error")
                 res.json({
                     code: STATUES.NOT_VALID,
                     msg: err,
@@ -321,8 +319,8 @@ router.post("/google",getLocation,async(req, res) => {
                     name: user.name,
                     oviv_currency: user.oviv_currency,
                     isVerified: user.isVerified,
+                    profilePic:base64data
                 }
-                console.log("user_payload "+ JSON.stringify(user_payload))
                 res.json({
                     code: STATUES.OK,
                     success: true,
@@ -332,7 +330,6 @@ router.post("/google",getLocation,async(req, res) => {
             }
         });
     }).catch((err) => {
-        console.log("user not saved : "+err+" : "+err.msg)
         res.json({
             code: STATUES.NOT_VALID,
             msg: err,

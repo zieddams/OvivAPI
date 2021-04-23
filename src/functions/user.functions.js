@@ -174,7 +174,6 @@ module.exports.compressImg = async (buffer)=>{
     })
     return miniBuffer;
 }
-
 module.exports.downloadBuffer= async(url)=>{
     const response = await axios.get(url,  { responseType: 'arraybuffer' })
     const buffer = Buffer.from(response.data, "utf-8")
@@ -213,7 +212,6 @@ module.exports.getCommenFollowersLVL3= async(myinteress,myCountry,myFoolwingList
     myFoolwingList = ["123","265","789","523","438"]
     targetFollowingList = ["123","265","700","500","438"]
     const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
-
     let users = await User.find({ '_id': { $in: commenFollowers }},{'address.country':myCountry},{'interests': { $in: myinteress }} ).exec();
     let returnIds = []
     users.forEach(user => {

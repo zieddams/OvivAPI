@@ -41,6 +41,7 @@ module.exports = (passport) => {
             });
         })
     );
+    /*
     passport.use(
         new GoogleStrategy(GOOGLE_OAUTH_options,
             async (req, accessToken, refreshToken, profile, done) => {
@@ -87,7 +88,7 @@ module.exports = (passport) => {
                 }
             }
         )
-    );
+    );*/
     passport.use(new FacebookStrategy(FACEBOOK_options,
         async (accessToken, refreshToken, profile, done) => {
             try {
