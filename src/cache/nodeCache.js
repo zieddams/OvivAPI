@@ -1,6 +1,8 @@
 const NodeCache = require("node-cache");
 let Cache = (() => {
-    this.ovivCache = new NodeCache({ checkperiod: 5 });
+    this.ovivCache = new NodeCache({
+        checkperiod: 5
+    });
 
     this.ovivCache.on("set", (key, value) => {
         console.log(`i see you .. putting ${key}`)
