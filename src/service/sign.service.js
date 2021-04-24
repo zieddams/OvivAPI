@@ -8,6 +8,7 @@ const STATUES = require("../config/config.application").STATUES_CODE;
 const userFunctions = require("../functions/user.functions");
 const rateLimit = require("express-rate-limit");
 const getLocation = require("../middleware/routingmiddleware").setLocation;
+const cache = require("../cache/nodeCache");
 
 module.exports = router;
 
@@ -383,3 +384,9 @@ router.get("/auth/facebook/callback", passport.authenticate('facebook', {
 })
 */
 
+router.get("/test",(req,res)=>{
+    exists = cache.ovivCache.has("username");
+  
+        res.send(exists)
+    
+})

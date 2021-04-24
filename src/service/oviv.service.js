@@ -5,6 +5,7 @@ const userFunctions = require("../functions/user.functions");
 const STATUES = require("../config/config.application").STATUES_CODE;
 const rateLimit = require("express-rate-limit");
 
+const cache = require("../cache/nodeCache");
 
 
 
@@ -17,39 +18,11 @@ const resetPasswordLimiter = rateLimit({
 
 module.exports = router;
 
-router.get("/test",async(req,res)=>{
-  let google_profile = {
-    name: "boujemaa wahid",
-    lastName: "wahid",
-    firstName: "boujemaa",
-    email: "boujemaa.wahid.jobs@gmail.com",
-  }
-
-    adder = 0;
-    let f_username = google_profile.firstName+google_profile.lastName
-    let user = await User.findOne({"name.username":f_username})
-    if(user){
-      let foundValidUsername = false;
-      while(!foundValidUsername){
-        adder++
-        let t_username = f_username + adder
-        let user = await User.findOne({"name.username":t_username})
-        if(!user){
-          f_username = t_username
-          foundValidUsername = true
-        }
-      }
-
-      res.send(`we suggest this username "${f_username}"`)
-    }
-    else {
-      res.send(`we suggest this username "${f_username}"`)
-    }
-  
-  
-
-
+router.get("/test",(req,res)=>{
+  cache.ovivCache.set("username","zieddams",10);
+  res.send("done")
 })
+
 
 
 
