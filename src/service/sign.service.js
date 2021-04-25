@@ -205,6 +205,7 @@ router.post("/isValidField", (req, res) => {
     break;
     }
 })
+
 router.post("/isNew", (req, res) => {
     const profile = req.body.profile
     User.findOne({
@@ -275,6 +276,7 @@ router.post("/isNew", (req, res) => {
     });
 
 })
+
 router.post("/google", getLocation, async (req, res) => {
     // + google_profile.suggedUsername
     google_profile = req.body.google_profile;
@@ -385,8 +387,3 @@ router.get("/auth/facebook/callback", passport.authenticate('facebook', {
 })
 */
 
-router.get("/test",(req,res)=>{
-    
-       
-    
-})

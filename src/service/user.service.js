@@ -14,11 +14,6 @@ const upload = multer({
     dest: './uploads/'
 })
 
-//const {encrypt, decrypt} = require("../functions/pako");
-
-
-
-
 module.exports = router;
 
 
@@ -68,7 +63,7 @@ router.post("/updateBasicInfos", (req, res) => {
         $set: req.body.basicInfos
     }, {
         runValidators: true
-    }).then(user => {
+    }).then(() => {
         res.json({
             code: STATUES.OK,
             msg: 'valide'

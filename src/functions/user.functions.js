@@ -54,7 +54,7 @@ module.exports.SendVerifyEmail = (id, email, username, secretCode) => {
         text
     } = emailBody.verifAccountEmailBody(id, username, secretCode)
     sendEmail.sendGmail(email, emailSubject.VERIFY_ACCOUNT, text, html).then(() => {
-        //console.log("email is send", result)
+        console.log("email is send", result)
     }).catch(error => console.log(error.message));
 }
 module.exports.SendNewPasswordEmail = (email, newPassword) => {
@@ -63,7 +63,7 @@ module.exports.SendNewPasswordEmail = (email, newPassword) => {
         text
     } = emailBody.resetPasswordEmailBody(newPassword)
     sendEmail.sendGmail(email, emailSubject.RESET_PASSWORD, text, html).then(() => {
-        //console.log("email is send", result)
+        console.log("email is send", result)
     }).catch(error => console.log(error.message));
 }
 module.exports.updateInterests = (situation, result, bodyInterests, req, res) => {

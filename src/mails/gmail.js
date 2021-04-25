@@ -28,10 +28,10 @@ module.exports.sendGmail = async (to, subject, text, html) => {
             html
         }
         const result = await transport.sendMail(mailOptions)
-       // console.log(result)
+        // console.log(result)
         return result;
     } catch (error) {
-       // console.log(error)
+        console.log(error)
         return error
     }
 }
