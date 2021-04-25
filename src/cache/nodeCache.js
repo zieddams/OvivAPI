@@ -35,8 +35,10 @@ let Cache = (() => {
         this.ovivCache.set("username", usernameArray)
     }
     this.ovivCache.existUsername = (value) => {
-        const usernames = this.ovivCache.get("username")
-        return usernames.includes(value)
+        if (this.ovivCache.has("username")) {
+            const usernames = this.ovivCache.get("username")
+            return usernames.includes(value)
+        } else return false
     }
 
     return this;
