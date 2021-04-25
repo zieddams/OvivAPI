@@ -1,5 +1,5 @@
-const app = require("./src/application/appuse")
-const connection = require("./src/connetion/connMongoose");
+const app = require("./src/app/appuse")
+const connection = require("./src/connection/connMongoose");
 connection.connect();
 app.initServer();
 app.exeServer();

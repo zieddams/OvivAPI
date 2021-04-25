@@ -34,7 +34,7 @@ application.initServer = () => {
 
     /** && */
     app.use(passport.initialize());
-    require("./../config/passport")(passport);
+    require("../config/passport")(passport);
 
     app.use(compression({
         level: 6

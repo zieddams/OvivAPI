@@ -2,23 +2,19 @@ const User = require("../schema/user.schema");
 const Personal = require("../schema/personal.schema");
 const bcrypt = require("bcryptjs");
 const generator = require('generate-password');
-const emailSubject = require("../mailer/emailsSubject");
-const emailBody = require("../mailer/emailsBody");
+const emailSubject = require("../mails/emailsSubject");
+const emailBody = require("../mails/emailsBody");
 const validator = require('validator');
 const isJpg = require('is-jpg');
 const sharp = require('sharp');
 const imagemin = require('imagemin');
 const mozjpeg = require('imagemin-mozjpeg');
-const sendEmail = require("../mailer/gmail")
-//const fetch = require('node-fetch');
+const sendEmail = require("../mails/gmail")
 const axios = require('axios');
 const cache = require("../cache/nodeCache");
-const convertToJpg = async (input) => {
-    if (isJpg(input)) {
-        return input
-    }
-    return sharp(input).jpeg().toBuffer();
-}
+
+
+
 
 
 module.exports.isValidEmail = (email) => validator.isEmail(email);
@@ -199,6 +195,12 @@ module.exports.CreatSearchQuery = async (filter) => {
     })
     return cardUsers;
 }
+const convertToJpg = async (input) => {
+    if (isJpg(input)) {
+        return input
+    }
+    return sharp(input).jpeg().toBuffer();
+}
 module.exports.compressImg = async (buffer) => {
     const miniBuffer = await imagemin.buffer(buffer, {
         plugins: [convertToJpg, mozjpeg({
@@ -215,7 +217,6 @@ module.exports.downloadBuffer = async (url) => {
     const miniBuff = await module.exports.compressImg(buffer)
     return miniBuff;
 }
-
 module.exports.getSuggestUsername = async (profile) => {
     let adder = 0;
     let f_username = profile.firstName + profile.lastName
@@ -256,7 +257,6 @@ module.exports.getCommenFollowersLVL1 = (myFoolwingList, targetFollowingList) =>
     return commenFollowers
 
 }
-
 module.exports.getCommenFollowersLVL2 = async (myCountry, myFoolwingList, targetFollowingList) => {
 
     myFoolwingList = ["123", "265", "789", "523", "438"]
