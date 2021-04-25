@@ -261,7 +261,7 @@ router.post("/isNew", (req, res) => {
                 });
             })
         } else {
-            suggestUsername = userFunctions.getSuggestUsername(profile);
+            suggestUsername = await userFunctions.getSuggestUsername(profile);
             res.json({
                 isNew:true,
                 suggestUsername
@@ -276,7 +276,7 @@ router.post("/isNew", (req, res) => {
 
 })
 router.post("/google", getLocation, async (req, res) => {
-
+    // + google_profile.suggedUsername
     google_profile = req.body.google_profile;
     const miniBuffer = await userFunctions.downloadBuffer(google_profile.photoUrl)
     const base64data = Buffer.from(miniBuffer).toString('base64');
@@ -317,6 +317,7 @@ router.post("/google", getLocation, async (req, res) => {
         }
     });
     newUser.save().then((user) => {
+        cache.ovivCache.doneUsername(google_profile.suggedUsername)
         const payload = {
             id: user._id
         };
@@ -385,8 +386,7 @@ router.get("/auth/facebook/callback", passport.authenticate('facebook', {
 */
 
 router.get("/test",(req,res)=>{
-    exists = cache.ovivCache.has("username");
-  
-        res.send(exists)
+    
+       
     
 })

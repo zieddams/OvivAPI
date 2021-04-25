@@ -12,6 +12,7 @@ const mozjpeg = require('imagemin-mozjpeg');
 const sendEmail = require("../mailer/gmail")
 //const fetch = require('node-fetch');
 const axios = require('axios');
+const cache = require("../cache/nodeCache");
 const convertToJpg = async (input) => {
     if (isJpg(input)) {
         return input
@@ -221,7 +222,7 @@ module.exports.getSuggestUsername = async (profile) => {
     let user = await User.findOne({
         "name.username": f_username
     })
-    if (user) {
+    if (user || cache.ovivCache.existUsername(f_username)) {
         let foundValidUsername = false;
         while (!foundValidUsername) {
             adder++
@@ -229,14 +230,18 @@ module.exports.getSuggestUsername = async (profile) => {
             let user = await User.findOne({
                 "name.username": t_username
             })
-            if (!user) {
+            if (!user || !cache.ovivCache.existUsername(f_username)) {
                 f_username = t_username
                 foundValidUsername = true
             }
         }
+        cache.ovivCache.addUsername(f_username)
         return f_username;
 
-    } else return f_username;
+    } else {
+        cache.ovivCache.addUsername(f_username)
+        return f_username;
+    }
 
 
 }

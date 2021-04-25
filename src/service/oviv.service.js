@@ -18,9 +18,17 @@ const resetPasswordLimiter = rateLimit({
 
 module.exports = router;
 
-router.get("/test",(req,res)=>{
-  cache.ovivCache.set("username","zieddams",10);
-  res.send("done")
+router.get("/test",async(req,res)=>{
+  const  obj = {
+    firstName:"zied",
+    lastName:"dams"
+  }
+  suggetUserame = await userFunctions.getSuggestUsername(obj)
+  console.log(suggetUserame)
+   /*cache.ovivCache.set("username",["zieddams"]);
+   console.log(cache.ovivCache.existUsername("zieddams"))
+   console.log(cache.ovivCache.existUsername("zieddams1"))*/
+  res.send(suggetUserame)
 })
 
 
