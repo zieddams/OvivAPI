@@ -215,6 +215,7 @@ router.post("/isNew", (req, res) => {
             const payload = {
                 id: user._id
             };
+            console.log("user._id : ",user._id)
             jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async (err, token) => {
                 if (err) {
                     res.json({
@@ -262,14 +263,17 @@ router.post("/isNew", (req, res) => {
                 });
             })
         } else {
+            console.log("else ")
             suggestUsername = await userFunctions.getSuggestUsername(profile);
+            console.log("suggestUsername ",suggestUsername)
             res.json({
                 isNew:true,
                 suggestUsername
             })
         }
     }).catch(err=>{
-        console.log(JSON.stringify(err))
+
+        console.log("catch ")
         res.json({
             code: STATUES.NOT_VALID,
             msg: err,
