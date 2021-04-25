@@ -269,6 +269,7 @@ router.post("/isNew", (req, res) => {
             })
         }
     }).catch(err=>{
+        console.log(JSON.stringify(err))
         res.json({
             code: STATUES.NOT_VALID,
             msg: err,

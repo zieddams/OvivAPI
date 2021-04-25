@@ -198,7 +198,7 @@ router.post("/updatePersonaleInfos", (req, res) => {
         $set: req.body.personaleInfos
     }, {
         lean: true
-    }).then(user => {
+    }).then(() => {
         res.json({
             code: STATUES.OK,
             msg: 'valide'
@@ -220,7 +220,7 @@ router.post("/updateEducationWork", (req, res) => {
         $set: req.body.educationWork
     }, {
         runValidators: true
-    }).then(user => {
+    }).then(() => {
         res.json({
             code: STATUES.OK,
             msg: 'valide'
@@ -241,7 +241,7 @@ router.post("/updatePrivacy", (req, res) => {
         $set: req.body.privacy
     }, {
         runValidators: true
-    }).then(user => {
+    }).then(() => {
         res.json({
             code: STATUES.OK,
             msg: 'valide'
@@ -261,7 +261,7 @@ router.post("/updateSetting", (req, res) => {
         $set: req.body.setting
     }, {
         runValidators: true
-    }).then(user => {
+    }).then(() => {
         res.json({
             code: STATUES.OK,
             msg: 'valide'
@@ -416,7 +416,7 @@ router.post("/followRequest", (req, res) => {
                         follow_date: req.body.action_date
                     })
                     myUser.save().then(() => {
-                        /*
+                        
                         let usersIdsLVL3 = userFunctions.getCommenFollowersLVL3(myUser.interests,myUser.address.country,myUser.following,user.following)
                         if(usersIdsLVL3<MIN_RRCOMMENDATIONS_LIST){
                             let usersIdsLVL2 = userFunctions.getCommenFollowersLVL2(myUser.address.country,myUser.following,user.following)
@@ -435,7 +435,7 @@ router.post("/followRequest", (req, res) => {
                         else{
                             console.log(usersIdsLVL3)
                             //getrecommandedUser(usersIdsLVL3)
-                        }*/
+                        }
 
                         res.json({
                             code: STATUES.OK,
