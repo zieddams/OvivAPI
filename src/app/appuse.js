@@ -68,8 +68,7 @@ application.initServer = () => {
     }), seekServ);
 }
 
-
-application.exeServer = () => {
+application.runServer = () => {
     console.log(`Server is working on ${process.env.PORT}`)
     http.listen(process.env.PORT);
 }
