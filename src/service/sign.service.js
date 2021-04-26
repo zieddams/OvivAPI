@@ -215,7 +215,6 @@ router.post("/isNew", (req, res) => {
             const payload = {
                 id: user._id
             };
-            console.log("user._id : ",user._id)
             jwt.sign(payload, process.env.SECRET_OR_KEY, {}, async (err, token) => {
                 if (err) {
                     res.json({
@@ -263,18 +262,13 @@ router.post("/isNew", (req, res) => {
                 });
             })
         } else {
-            console.log("else ")
             suggestUsername = await userFunctions.getSuggestUsername(profile);
-            console.log("suggestUsername ",suggestUsername)
             res.json({
                 isNew:true,
                 suggestUsername
             })
         }
     }).catch(err=>{
-
-        console.log("catch ")
-        console.log(err)
         res.json({
             code: STATUES.NOT_VALID,
             msg: err,
@@ -284,7 +278,6 @@ router.post("/isNew", (req, res) => {
 })
 
 router.post("/google", getLocation, async (req, res) => {
-    // + google_profile.suggedUsername
     google_profile = req.body.google_profile;
     const miniBuffer = await userFunctions.downloadBuffer(google_profile.photoUrl)
     const base64data = Buffer.from(miniBuffer).toString('base64');
