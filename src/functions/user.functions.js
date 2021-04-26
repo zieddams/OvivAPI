@@ -251,8 +251,6 @@ module.exports.getCommenFollowersLVL1 = (myFoolwingList, targetFollowingList) =>
     myFoolwingList = ["123", "265", "789", "523", "438"]
     targetFollowingList = ["123", "265", "700", "500", "438"]
     const commenFollowers = targetFollowingList.filter(user => !myFoolwingList.includes(user));
-
-
     console.log(commenFollowers)
     return commenFollowers
 
@@ -298,3 +296,4 @@ module.exports.getCommenFollowersLVL3 = async (myinteress, myCountry, myFoolwing
     });
     return returnIds
 }
+
